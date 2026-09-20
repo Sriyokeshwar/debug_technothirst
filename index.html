@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Debugging Championship — Technothirst’26 | AVCCE MCA</title>
+  <!-- Technothirst’26 Light Tech Theme Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- TOP NAVBAR -->
+  <header class="top-navbar">
+    <div class="brand-group">
+      <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE MCA Logo" class="brand-logo-img">
+      <div class="brand-info">
+        <h1>TECHNOTHIRST’26</h1>
+        <span>Python Debugging Tournament — AVCCE MCA</span>
+      </div>
+      <div id="navStageBadge" class="nav-stage-badge">
+        <span class="pulse-dot"></span>
+        <span id="navStageText">Registration</span>
+      </div>
+    </div>
+
+    <!-- Question Indicator (Q1 - Q4) -->
+    <div id="navCenterProgress" class="nav-center-progress">
+      <div class="q-step-indicator" id="qStepPills">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Right Controls: Timer & Admin -->
+    <div class="nav-right-controls">
+      <div id="navTimerBox" class="nav-timer-box">
+        <span class="timer-label" id="timerLabel">Time Left</span>
+        <span class="timer-display" id="timerDisplay">60:00</span>
+      </div>
+      <button class="btn-admin" id="btnAdminOpen">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>
+        Admin
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN APP VIEWS -->
+  <main class="app-main">
+
+    <!-- VIEW 1: REGISTRATION -->
+    <section id="viewRegistration" class="view-screen active">
+      <div class="reg-wrapper">
+        <div class="reg-header">
+          <div class="reg-logo-container">
+            <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE MCA Logo" class="reg-hero-logo">
+          </div>
+          <span class="reg-badge">A.V.C. COLLEGE OF ENGINEERING (AUTONOMOUS)</span>
+          <h2>Technothirst’26 Debugging Championship</h2>
+          <p>Department of Computer Applications (MCA) — Contestant Onboarding</p>
+        </div>
+
+        <form id="formRegistration" novalidate>
+          <div class="reg-form-group">
+            <label for="regStudentName">Full Name <span class="req">*</span></label>
+            <input type="text" id="regStudentName" class="reg-form-input" placeholder="e.g. Sriyokesh K" required>
+            <div class="reg-form-error" id="errStudentName">Student name is required.</div>
+          </div>
+
+          <div class="reg-form-group">
+            <label for="regRollNo">Roll Number / Register Number <span class="req">*</span></label>
+            <input type="text" id="regRollNo" class="reg-form-input" placeholder="e.g. 21MCA042" required>
+            <div class="reg-form-error" id="errRollNo">Register number is required.</div>
+          </div>
+
+          <div class="reg-form-group">
+            <label for="regDegree">Degree <span class="req">*</span></label>
+            <select id="regDegree" class="reg-form-select" required>
+              <option value="" disabled selected>Select Degree...</option>
+              <option value="B.Sc Computer Science">B.Sc Computer Science</option>
+              <option value="BCA">BCA</option>
+              <option value="B.E Computer Science and Engineering">B.E Computer Science and Engineering</option>
+              <option value="B.Tech Information Technology">B.Tech Information Technology</option>
+              <option value="B.Tech Artificial Intelligence and Data Science">B.Tech Artificial Intelligence and Data Science</option>
+              <option value="B.Sc Information Technology">B.Sc Information Technology</option>
+              <option value="B.Sc Artificial Intelligence">B.Sc Artificial Intelligence</option>
+              <option value="M.Sc Computer Science">M.Sc Computer Science</option>
+              <option value="MCA" selected>MCA</option>
+              <option value="M.E Computer Science and Engineering">M.E Computer Science and Engineering</option>
+              <option value="M.Tech Information Technology">M.Tech Information Technology</option>
+            </select>
+            <div class="reg-form-error" id="errDegree">Please select your registered degree.</div>
+          </div>
+
+          <div class="reg-form-group">
+            <label for="regDepartment">Department <span class="req">*</span></label>
+            <input type="text" id="regDepartment" class="reg-form-input" placeholder="Computer Applications" value="Computer Applications" required>
+            <div class="reg-form-error" id="errDepartment">Department is required.</div>
+          </div>
+
+          <div class="reg-form-group">
+            <label for="regCollege">College / Institution Name <span class="req">*</span></label>
+            <input type="text" id="regCollege" class="reg-form-input" placeholder="A.V.C. College of Engineering (AVCCE)" value="A.V.C. College of Engineering (AVCCE)" required>
+            <div class="reg-form-error" id="errCollege">College name is required.</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">
+            ENTER COMPETITION →
+          </button>
+        </form>
+
+        <p class="reg-footer-note">
+          🔒 Offline First: System state and candidate history are archived locally on this computer.
+        </p>
+      </div>
+    </section>
+
+    <!-- VIEW 2: RULES & GUIDELINE LOCK -->
+    <section id="viewRules" class="view-screen">
+      <div class="rules-wrapper">
+        <div class="rules-header">
+          <div style="display: flex; justify-content: center; margin-bottom: 12px;">
+            <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE Logo" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent-color);">
+          </div>
+          <h2>Tournament Guidelines</h2>
+          <p>Read the official competition rules below. The agreement checkbox will unlock after 15 seconds.</p>
+        </div>
+
+        <div class="rules-accordion">
+          <div class="acc-card open">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">1</span> Semi-Final Structure</div>
+              <span class="acc-toggle-icon">▼</span>
+            </div>
+            <div class="acc-body">
+              The Semi-Final contains <strong>exactly 4 questions</strong> (NOT 5). Each question has <strong>exactly 5 intentional errors</strong> (20 errors total).
+            </div>
+          </div>
+
+          <div class="acc-card">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">2</span> Python 3 Fundamentals Only</div>
+              <span class="acc-toggle-icon">▼</span>
+            </div>
+            <div class="acc-body">
+              Standard Python 3 only: variables, lists, nested lists/matrices, loops, conditionals, accumulators, and functions. No external packages (NumPy/Pandas) required.
+            </div>
+          </div>
+
+          <div class="acc-card">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">3</span> IDE Debugging Workflow</div>
+              <span class="acc-toggle-icon">▼</span>
+            </div>
+            <div class="acc-body">
+              Click <strong>[ COPY CODE ]</strong> on the left, paste into your local Python IDE, debug and run, then paste your corrected code into the right panel and click <strong>[ VERIFY CODE ]</strong>.
+            </div>
+          </div>
+
+          <div class="acc-card">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">4</span> Verification & Navigation Rule</div>
+              <span class="acc-toggle-icon">▼</span>
+            </div>
+            <div class="acc-body">
+              Clicking <strong>[ VERIFY CODE ]</strong> evaluates your code (showing green for success or red for unverified). Clicking verify automatically unlocks the <strong>[ NEXT QUESTION ]</strong> button so you can proceed at any time. You can also skip or retry.
+            </div>
+          </div>
+
+          <div class="acc-card">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">5</span> Timing & Early-Exit Threshold</div>
+              <span class="acc-toggle-icon">▼</span>
+            </div>
+            <div class="acc-body">
+              Total Semi-Final time is <strong>60 minutes</strong>. Early exit becomes available after <strong>45 minutes</strong> (or immediately if all 4 questions are solved). Hard stop at 60:00.
+            </div>
+          </div>
+
+          <div class="acc-card">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">6</span> Multi-Participant Support</div>
+              <span class="acc-toggle-icon">▼</span>
+            </div>
+            <div class="acc-body">
+              After finishing the test, coordinators or candidates can click <strong>[ + REGISTER ANOTHER PARTICIPANT ]</strong> to safely archive current results and initialize a fresh test session for the next student.
+            </div>
+          </div>
+        </div>
+
+        <div class="rules-agreement-box">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span id="guidelineTimerBadge" class="guideline-timer-badge">Lock: 15s remaining</span>
+            <label class="agreement-check-wrapper">
+              <input type="checkbox" id="chkGuidelines" disabled>
+              <span>I've completely read the guidelines and agree to tournament rules</span>
+            </label>
+          </div>
+          <button id="btnStartDebug" class="btn btn-primary" disabled style="min-width: 220px;">
+            START DEBUG →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: COUNTDOWN -->
+    <section id="viewCountdown" class="view-screen">
+      <div class="countdown-wrapper">
+        <div id="countdownNumber" class="countdown-number">3</div>
+        <div class="countdown-subtitle">INITIALIZING DEBUG ENVIRONMENT...</div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: STREAMLINED TWO-COLUMN WORKSPACE -->
+    <section id="viewWorkspace" class="view-screen">
+      <div class="workspace-layout">
+
+        <!-- Stage & Status Bar -->
+        <div class="stage-status-bar">
+          <div class="stage-status-left">
+            <span id="wsStageBadge" class="stage-title-tag">SEMI-FINAL</span>
+            <span id="wsQuestionNum" class="stage-difficulty-tag">QUESTION 1 / 4</span>
+            <span id="wsDifficulty" class="stage-difficulty-tag">MODERATE</span>
+          </div>
+          <div class="stage-meta-info">
+            <span id="wsCandidateName">Candidate: --</span>
+            <span id="wsEarlyExitStatus" style="font-weight: 700; color: var(--secondary-color);">Early exit unlocks at 45:00</span>
+          </div>
+        </div>
+
+        <!-- TWO-COLUMN WORKSPACE: LEFT (Question + Buggy Code) | RIGHT (Paste Area + Verify) -->
+        <div class="workspace-columns">
+          
+          <!-- LEFT COLUMN: 2-LINE QUESTION + BUGGY CODE VIEWER -->
+          <div class="left-code-column">
+            
+            <div class="left-question-box">
+              <div id="specTitle" class="left-question-title">Problem Title</div>
+              <p id="specShortPrompt" class="left-question-desc">Maximum two lines of concise problem statement explaining what the code is intended to compute.</p>
+            </div>
+
+            <div class="code-box-wrapper">
+              <div class="code-box-header">
+                <div class="code-box-header-title">
+                  <span class="code-dot"></span>
+                  Buggy Python Code (5 Intentional Errors)
+                </div>
+                <button id="btnCopyCode" class="btn-copy">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  COPY CODE
+                </button>
+              </div>
+              <div id="codeViewerBody" class="code-viewer-body">
+                <!-- Injected with line numbers -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: CODE PASTE AREA + VERIFICATION + NEXT -->
+          <div class="right-editor-column">
+            
+            <div class="editor-wrapper">
+              <div class="editor-header">
+                <div class="editor-title">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  Corrected Code Paste Area
+                </div>
+                <div class="editor-meta" id="editorLineCount">Lines: 0 | Characters: 0</div>
+              </div>
+
+              <textarea 
+                id="txtCorrectedCode" 
+                class="editor-textarea" 
+                placeholder="Paste your corrected Python code here..."
+                spellcheck="false"
+              ></textarea>
+
+              <div class="editor-actions-bar">
+                <!-- Action Buttons Row -->
+                <div class="editor-buttons-row">
+                  <button id="btnVerifyCode" class="btn btn-primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    VERIFY CODE
+                  </button>
+
+                  <button id="btnSkipQuestion" class="btn btn-secondary">
+                    SKIP QUESTION ↷
+                  </button>
+
+                  <button id="btnNextQuestion" class="btn btn-success" disabled>
+                    NEXT QUESTION →
+                  </button>
+
+                  <button id="btnFinishTest" class="btn btn-gold" style="display: none;">
+                    FINISH TEST ✓
+                  </button>
+                </div>
+
+                <!-- Next Line Verification Feedback: Green if completed, Red if not verified -->
+                <div id="verificationStatusBanner" class="verification-status-banner">
+                  <!-- Injected via JS -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- WORKSPACE FOOTER -->
+        <div class="workspace-footer-bar">
+          <div style="font-size: 13px; color: var(--text-secondary);">
+            💡 <strong>External IDE Workflow:</strong> Run code in your local Python 3 interpreter, debug the 5 errors, and paste the fixed script back.
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button id="btnForceQuit" class="btn btn-danger">
+              FORCE QUIT
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 5: RESULTS & AUDIT CERTIFICATE -->
+    <section id="viewResults" class="view-screen">
+      <div class="result-wrapper">
+        <div class="result-certificate-header">
+          <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE MCA Logo" class="result-logo-seal">
+          <h2>A.V.C. COLLEGE OF ENGINEERING (AUTONOMOUS)</h2>
+          <div class="cert-dept">DEPARTMENT OF COMPUTER APPLICATIONS (MCA)</div>
+          <div class="cert-sub">Technothirst’26 Python Debugging Championship — Official Audit Certificate</div>
+        </div>
+
+        <!-- Candidate Credentials -->
+        <div class="result-candidate-card">
+          <div class="cand-field">
+            <label>Candidate Name</label>
+            <span id="resCandName">--</span>
+          </div>
+          <div class="cand-field">
+            <label>Register / Roll Number</label>
+            <span id="resCandRoll">--</span>
+          </div>
+          <div class="cand-field">
+            <label>Degree</label>
+            <span id="resCandDegree">--</span>
+          </div>
+          <div class="cand-field">
+            <label>Department</label>
+            <span id="resCandDept">--</span>
+          </div>
+          <div class="cand-field">
+            <label>Institution</label>
+            <span id="resCandCollege">--</span>
+          </div>
+        </div>
+
+        <!-- Scorecards Grid -->
+        <div class="result-scorecards-grid">
+          <div class="scorecard highlight">
+            <div class="scorecard-header">
+              <span>Semi-Final Performance</span>
+              <span id="resSemiBadge" class="score-badge success">Completed</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Questions Solved</span>
+              <span class="score-metric-value" id="resSemiQuestions">0 / 4</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Errors Solved</span>
+              <span class="score-metric-value" id="resSemiErrors">0 / 20</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Total Time Taken</span>
+              <span class="score-metric-value" id="resSemiTime">00 min 00 sec</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Completion Status</span>
+              <span class="score-metric-value" id="resSemiStatus">Completed</span>
+            </div>
+          </div>
+
+          <div class="scorecard" id="cardFinalResult" style="opacity: 0.55;">
+            <div class="scorecard-header">
+              <span>Final Test Performance</span>
+              <span id="resFinalBadge" class="score-badge info">Not Activated</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Questions Solved</span>
+              <span class="score-metric-value" id="resFinalQuestions">-- / 2</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Errors Solved</span>
+              <span class="score-metric-value" id="resFinalErrors">-- / 10</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Final Test Duration</span>
+              <span class="score-metric-value" id="resFinalTime">--</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Status</span>
+              <span class="score-metric-value" id="resFinalStatus">Awaiting Coordinator</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="font-family: var(--heading-font); font-size: 16px; margin-bottom: 12px; color: var(--primary-color);">
+          Question-by-Question Audit Breakdown
+        </h3>
+        <table class="result-timing-table">
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Difficulty</th>
+              <th>Status</th>
+              <th>Time Consumed</th>
+            </tr>
+          </thead>
+          <tbody id="resTimingTableBody">
+            <!-- Injected via JS -->
+          </tbody>
+        </table>
+
+        <!-- Final Test Activation Alert -->
+        <div id="finalReadyBanner" style="display: none; background: #FEF3C7; border: 1px solid #FCD34D; border-radius: var(--radius-md); padding: 18px; text-align: center; margin-bottom: 24px;">
+          <h4 style="color: #92400E; font-size: 16px; font-weight: 800; margin-bottom: 6px;">⚡ FINAL TEST ACTIVATED BY COORDINATOR</h4>
+          <p style="color: #78350F; font-size: 14px; margin-bottom: 14px;">The administrator has authorized your participation in Stage 2 (2 Questions, 10 Minutes).</p>
+          <button id="btnEnterFinalTest" class="btn btn-gold" style="padding: 10px 24px;">
+            ENTER FINAL TEST NOW →
+          </button>
+        </div>
+
+        <!-- Result Export & Multi-Participant Action Buttons -->
+        <div class="result-actions-group">
+          <!-- Add another participant button as requested -->
+          <button id="btnAddAnotherParticipant" class="btn btn-primary" style="background: linear-gradient(135deg, #075985, #06B6D4);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            + ADD ANOTHER PARTICIPANT
+          </button>
+
+          <button id="btnDownloadTxt" class="btn btn-secondary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            DOWNLOAD TXT AUDIT
+          </button>
+
+          <button id="btnPrintPdf" class="btn btn-secondary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            PRINT / SAVE AS PDF
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- DEEP NAVY FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-left">
+        <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE Logo" class="footer-logo">
+        <div class="footer-credits">
+          <strong>A.V.C. COLLEGE OF ENGINEERING (AUTONOMOUS)</strong> — Mannampandal, Mayiladuthurai<br>
+          Department of Computer Applications (MCA)
+        </div>
+      </div>
+      <div>
+        <span class="footer-tag">Technothirst’26 Light Tech Theme</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       MODALS: ADMIN LOGIN, ADMIN DASHBOARD (WITH PARTICIPANTS CACHE ROSTER)
+       ========================================================================== -->
+
+  <!-- ADMIN LOGIN MODAL -->
+  <div id="modalAdminLogin" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Coordinator Authentication</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalAdminLogin')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 14px; color: var(--text-secondary); font-size: 13.5px;">
+          Enter coordinator authorization password to access competition controls & participant caches.
+        </p>
+        <div class="reg-form-group">
+          <label for="txtAdminPassword">Admin Password</label>
+          <input type="password" id="txtAdminPassword" class="reg-form-input" placeholder="••••••••" autocomplete="off">
+          <div id="errAdminPassword" class="reg-form-error">Incorrect administrative password.</div>
+        </div>
+        <p style="font-size: 11.5px; color: var(--text-secondary); margin-top: 8px;">
+          🔒 Web Crypto PBKDF2 (SHA-256). Default key: <code>Admin@Debug2026</code>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalAdminLogin')">Cancel</button>
+        <button id="btnAdminSubmitLogin" class="btn btn-primary">Login to Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD MODAL WITH PARTICIPANTS CACHE ROSTER -->
+  <div id="modalAdminDashboard" class="modal-backdrop">
+    <div class="modal-card admin-modal-card">
+      <div class="modal-header">
+        <h3>Coordinator Control Center & Participant Archive</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalAdminDashboard')">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Live Telemetry Grid -->
+        <div class="admin-dash-grid">
+          <div class="admin-stat-card">
+            <div class="label">Current Candidate</div>
+            <div class="value" id="admCandName" style="font-size: 15px;">--</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Stage & Question</div>
+            <div class="value" id="admQuestion">--</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Time Remaining</div>
+            <div class="value" id="admTimeLeft">--</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Solved Progress</div>
+            <div class="value" id="admQuestionsSolved">--</div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="admin-controls-grid">
+          <button id="admBtnPause" class="btn btn-warning">
+            ⏸ PAUSE TEST
+          </button>
+          <button id="admBtnResume" class="btn btn-success" style="display: none;">
+            ▶ RESUME TEST
+          </button>
+          <button id="admBtnForceFinish" class="btn btn-secondary">
+            ⏹ FORCE FINISH
+          </button>
+          <button id="admBtnActivateFinal" class="btn btn-gold">
+            ⚡ ACTIVATE FINAL TEST
+          </button>
+          <button id="admBtnCancel" class="btn btn-danger">
+            ✖ CANCEL TEST
+          </button>
+          <button id="admBtnNewParticipant" class="btn btn-primary">
+            + NEW PARTICIPANT
+          </button>
+        </div>
+
+        <!-- PARTICIPANTS CACHE ARCHIVE SECTION -->
+        <div style="margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h4 style="font-family: var(--heading-font); color: var(--primary-color); font-size: 15px;">
+              📁 Saved Participant Records (Cache Storage)
+            </h4>
+            <div style="display: flex; gap: 8px;">
+              <button id="admBtnExportAllCsv" class="btn btn-secondary" style="padding: 5px 12px; font-size: 12px;">
+                Export CSV
+              </button>
+              <button id="admBtnClearRoster" class="btn btn-danger" style="padding: 5px 12px; font-size: 12px;">
+                Clear Cache
+              </button>
+            </div>
+          </div>
+
+          <div style="max-height: 220px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+            <table class="roster-table">
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Name</th>
+                  <th>Degree</th>
+                  <th>Questions</th>
+                  <th>Errors</th>
+                  <th>Time Taken</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="admRosterTableBody">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalAdminDashboard')">Close Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 45-MINUTE EARLY EXIT PROMPT MODAL -->
+  <div id="modal45MinPrompt" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>45-Minute Mandatory Duration Completed</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal45MinPrompt')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 15px; font-weight: 700; color: var(--primary-color); margin-bottom: 8px;">
+          You have reached the 45-minute mark.
+        </p>
+        <p style="color: var(--text-secondary); font-size: 13.5px; line-height: 1.6; margin-bottom: 12px;">
+          You may conclude your test now or continue solving during the remaining <strong>15 minutes</strong> (until 60:00).
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="btnPromptForceQuit" class="btn btn-danger">
+          FORCE QUIT (SUBMIT NOW)
+        </button>
+        <button id="btnPromptContinue" class="btn btn-primary">
+          CONTINUE TEST →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN PAUSE SCREEN OVERLAY -->
+  <div id="pauseOverlay" class="pause-screen-overlay">
+    <div class="pause-icon">⏸</div>
+    <h2>TEST PAUSED</h2>
+    <p>The coordinator has temporarily paused the competition environment. Please wait for the session to be resumed.</p>
+  </div>
+
+  <!-- CONFETTI CANVAS -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- MODULAR SCRIPTS -->
+  <script src="js/questions.js"></script>
+  <script src="js/security.js"></script>
+  <script src="js/validation.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
