@@ -37,10 +37,9 @@ const COMPETITION_QUESTIONS = [
   {
     id: 'semi_q1',
     number: 1,
-    difficulty: 'MODERATE',
     title: 'Daily Meal Sales & Tax Auditing',
     shortPrompt: 'Calculate total discounted sales, total tax, and the highest net meal category.\nApply 10% volume discount for quantity > 5, 5% tax for Breakfast (\'B\') vs 8% for others, and track top category.',
-    expectedOutput: 'Sales: 2225.00 Tax: 167.02 Top: L',
+    expectedOutput: 'Sales: 2225.00 Tax: 167.02 Top: D',
     buggyCode: `items = [['B', 6, 40.0], ['L', 4, 80.0], ['D', 8, 120.0], ['B', 3, 50.0], ['L', 10, 75.0]]
 total_sales = 0.0; total_tax = 0.0; max_bill = -1.0; top_cat = ''
 
@@ -62,10 +61,9 @@ print(f"Sales: {total_sales:.2f} Tax: {total_tax:.2f} Top: {top_cat}")`
   {
     id: 'semi_q2',
     number: 2,
-    difficulty: 'MODERATE',
     title: 'Student Exam Attendance & Medical Condonation',
     shortPrompt: 'Compute attendance percentage and eligibility with a 10% condonation bonus for attendance in [65%, 75%) with medical certificate (\'Y\').\nEligible if attendance >= 75% and score >= 40. Track eligible count and top student.',
-    expectedOutput: 'Eligible: 2, Top: Eshan (95.0%)',
+    expectedOutput: 'Eligible: 2, Top: Eshan (93.3%)',
     buggyCode: `students = [["Aravind", 38, 45, 'N', 78], ["Bhavna", 28, 45, 'Y', 65], ["Eshan", 42, 45, 'N', 92]]
 eligible = 0; max_pct = 0.0; top_student = ""
 
@@ -86,10 +84,9 @@ print(f"Eligible: {eligible}, Top: {top_student} ({max_pct:.1f}%)")`
   {
     id: 'semi_q3',
     number: 3,
-    difficulty: 'MODERATE → HARD',
     title: 'Sensor Matrix Temperature & Hotspots Analysis',
     shortPrompt: 'Analyze a 3x3 sensor matrix to compute the overall average temperature and count active hotspots.\nA hotspot is strictly greater than its row average and the overall average. Find the peak column index.',
-    expectedOutput: 'Average: 32.78, Hotspots: 3, Peak Column: 1',
+    expectedOutput: 'Average: 32.78, Hotspots: 4, Peak Column: 2',
     buggyCode: `grid = [[28.0, 34.0, 31.0], [32.0, 36.0, 38.0], [29.0, 30.0, 37.0]]
 total = 0.0; row_sum = 0.0; hotspots = 0; row_avgs = []
 for r in range(len(grid)):
@@ -111,7 +108,6 @@ print(f"Average: {overall_avg:.2f}, Hotspots: {hotspots}, Peak Column: {peak_c}"
   {
     id: 'semi_q4',
     number: 4,
-    difficulty: 'HARD',
     title: 'Hostel Tiered Power Tariff & Peak Surcharges',
     shortPrompt: 'Calculate room electricity with slabs (0-100 @ 3.0, 101-200 @ 4.5, >200 @ 6.0), peak surcharge (+2.0), and 5% green rebate if units < 80.\nTrack total revenue, tier-3 rooms count (>200 units), and the highest billed room.',
     expectedOutput: 'Revenue: 1988.00, Tier3: 1, Top: Room 103',
@@ -527,7 +523,6 @@ function renderWorkspace() {
 
   // Status Bar
   document.getElementById('wsQuestionNum').textContent = `QUESTION ${qData.number} / ${QUESTIONS_COUNT}`;
-  document.getElementById('wsDifficulty').textContent = qData.difficulty;
   document.getElementById('wsCandidateName').textContent = `Candidate: ${STATE.student.name || '--'}`;
 
   // Early Exit & Force Quit button state
@@ -547,6 +542,7 @@ function renderWorkspace() {
   // Left Column
   document.getElementById('specTitle').textContent = `Q${qData.number}: ${qData.title}`;
   document.getElementById('specShortPrompt').textContent = qData.shortPrompt;
+  document.getElementById('specExpectedOutput').textContent = qData.expectedOutput;
   document.getElementById('codeViewerBody').innerHTML = highlightPythonSyntax(qData.buggyCode);
 
   const btnCopy = document.getElementById('btnCopyCode');
@@ -926,7 +922,6 @@ function showResultsView() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>Q${idx + 1}:</strong> ${q.title}</td>
-      <td>${q.difficulty}</td>
       <td><span class="score-badge ${isSolved ? 'success' : 'warning'}">${isSolved ? 'SOLVED' : 'UNSOLVED'}</span></td>
       <td>${m}m ${s}s</td>
       <td><strong>${errors} / 5</strong></td>

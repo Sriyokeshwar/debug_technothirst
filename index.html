@@ -239,9 +239,8 @@
         <!-- Stage & Status Bar -->
         <div class="stage-status-bar">
           <div class="stage-status-left">
-            <span id="wsStageBadge" class="stage-title-tag">SEMI-FINAL</span>
-            <span id="wsQuestionNum" class="stage-difficulty-tag">QUESTION 1 / 4</span>
-            <span id="wsDifficulty" class="stage-difficulty-tag">MODERATE</span>
+            <span id="wsStageBadge" class="stage-title-tag">SEMI-FINAL EXAMINATION</span>
+            <span id="wsQuestionNum" class="stage-meta-tag">QUESTION 1 / 4</span>
           </div>
           <div class="stage-meta-info">
             <span id="wsCandidateName">Candidate: --</span>
@@ -252,12 +251,21 @@
         <!-- TWO-COLUMN WORKSPACE -->
         <div class="workspace-columns">
           
-          <!-- LEFT COLUMN: 2-LINE QUESTION + BUGGY CODE VIEWER -->
+          <!-- LEFT COLUMN: QUESTION + TARGET OUTPUT + BUGGY CODE VIEWER -->
           <div class="left-code-column">
             
             <div class="left-question-box">
               <div id="specTitle" class="left-question-title">Problem Title</div>
               <p id="specShortPrompt" class="left-question-desc">Maximum two lines of concise problem statement explaining what the code is intended to compute.</p>
+              
+              <!-- Target Output Display for Output-Based Examination -->
+              <div class="expected-output-box">
+                <div class="expected-output-header">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                  Target Program Output:
+                </div>
+                <div id="specExpectedOutput" class="expected-output-body">Output will appear here</div>
+              </div>
             </div>
 
             <div class="code-box-wrapper">
@@ -409,7 +417,6 @@
           <thead>
             <tr>
               <th>Question</th>
-              <th>Difficulty</th>
               <th>Status</th>
               <th>Time Consumed</th>
               <th>Errors Solved</th>

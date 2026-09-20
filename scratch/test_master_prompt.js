@@ -41,9 +41,23 @@ assert(htmlContent.includes('<link rel="stylesheet" href="style.css">'), 'index.
 assert(htmlContent.includes('<script src="script.js"></script>'), 'index.html includes script.js');
 
 // --------------------------------------------------------------------------
-// 2. SEMI-FINAL QUESTION STRUCTURE: EXACTLY 4 QUESTIONS (NO Q5)
+// 2. NO DIFFICULTY LABELS (EASY / HARD / MODERATE) FOR PURE EXAMINATION
 // --------------------------------------------------------------------------
-console.log('\n--- 2. Question Bank & Constraints ---');
+console.log('\n--- 2. Pure Examination Purity (No Easy/Hard/Moderate) ---');
+
+assert(!htmlContent.includes('MODERATE') && !htmlContent.includes('Moderate'), 'No "Moderate" in index.html');
+assert(!htmlContent.includes('<th>Difficulty</th>'), 'No "Difficulty" column in index.html audit table');
+assert(!htmlContent.includes('stage-difficulty-tag'), 'No "stage-difficulty-tag" in index.html');
+assert(!jsContent.includes('q.difficulty'), 'No "q.difficulty" in script.js audit table');
+assert(!jsContent.includes("difficulty: '"), 'No difficulty property in script.js questions');
+
+// --------------------------------------------------------------------------
+// 3. TARGET PROGRAM OUTPUT VISIBILITY
+// --------------------------------------------------------------------------
+console.log('\n--- 3. Output-Based Examination Target Outputs ---');
+
+assert(htmlContent.includes('id="specExpectedOutput"'), 'Target output display element exists in index.html');
+assert(htmlContent.includes('Target Program Output:'), 'Target Program Output header exists in index.html');
 
 // Set up VM environment to test script.js functions
 const sandbox = {
@@ -75,7 +89,8 @@ const sandbox = {
     print: () => {}
   },
   document: {
-    getElementById: () => ({
+    getElementById: (id) => ({
+      id: id,
       value: '',
       textContent: '',
       style: {},
@@ -100,8 +115,11 @@ assert(sandbox.TOTAL_TIME === 3600, `TOTAL_TIME constant is 3600 (60 minutes)`);
 assert(sandbox.EARLY_EXIT_TIME === 2700, `EARLY_EXIT_TIME constant is 2700 (45 minutes)`);
 assert(sandbox.GUIDELINE_UNLOCK_TIME === 15, `GUIDELINE_UNLOCK_TIME constant is 15 seconds`);
 
-// Verify no Question 5 anywhere in HTML
-assert(!htmlContent.includes('Question 5') && !htmlContent.includes('Q5'), 'No Question 5 or Q5 in index.html');
+// Verify target outputs match real Python execution
+assert(questions[0].expectedOutput === 'Sales: 2225.00 Tax: 167.02 Top: D', 'Q1 target output is "Sales: 2225.00 Tax: 167.02 Top: D"');
+assert(questions[1].expectedOutput === 'Eligible: 2, Top: Eshan (93.3%)', 'Q2 target output is "Eligible: 2, Top: Eshan (93.3%)"');
+assert(questions[2].expectedOutput === 'Average: 32.78, Hotspots: 4, Peak Column: 2', 'Q3 target output is "Average: 32.78, Hotspots: 4, Peak Column: 2"');
+assert(questions[3].expectedOutput === 'Revenue: 1988.00, Tier3: 1, Top: Room 103', 'Q4 target output is "Revenue: 1988.00, Tier3: 1, Top: Room 103"');
 
 // Check line counts for Q1-Q3 (8-15 lines) and Q4 (10-18 lines)
 for (let i = 0; i < 3; i++) {
@@ -120,9 +138,9 @@ for (let i = 0; i < 3; i++) {
 }
 
 // --------------------------------------------------------------------------
-// 3. CODE VERIFICATION ENGINE (PASS ON SOLVED, FAIL ON BUGGY/MOCK)
+// 4. CODE VERIFICATION ENGINE (PASS ON SOLVED, FAIL ON BUGGY/MOCK)
 // --------------------------------------------------------------------------
-console.log('\n--- 3. Code Verification Engine ---');
+console.log('\n--- 4. Code Verification Engine ---');
 
 const solutions = [
   // Q1 Solution (5 errors fixed)
@@ -211,9 +229,9 @@ for (let i = 0; i < 4; i++) {
 }
 
 // --------------------------------------------------------------------------
-// 4. ADMIN AUTHENTICATION (MCALAB@2k26) & NO PLAINTEXT IN SOURCE
+// 5. ADMIN AUTHENTICATION (MCALAB@2k26) & NO PLAINTEXT IN SOURCE
 // --------------------------------------------------------------------------
-console.log('\n--- 4. Admin Authentication & Obfuscation ---');
+console.log('\n--- 5. Admin Authentication & Obfuscation ---');
 
 assert(!htmlContent.includes('MCALAB@2k26'), 'Password "MCALAB@2k26" is NOT in index.html');
 assert(!jsContent.includes('MCALAB@2k26'), 'Password "MCALAB@2k26" is NOT in script.js');
@@ -228,9 +246,9 @@ async function testAuth() {
 }
 
 // --------------------------------------------------------------------------
-// 5. DEGREE DROPDOWN & DYNAMIC DEPARTMENT INPUT
+// 6. DEGREE DROPDOWN & DYNAMIC DEPARTMENT INPUT
 // --------------------------------------------------------------------------
-console.log('\n--- 5. Registration Degree & Department ---');
+console.log('\n--- 6. Registration Degree & Department ---');
 
 const expectedDegrees = [
   'B.Sc Computer Science',
@@ -251,12 +269,12 @@ expectedDegrees.forEach(deg => {
 });
 
 assert(htmlContent.includes('<option value="" disabled selected>Select Degree...</option>'), 'Default placeholder option exists');
-assert(htmlContent.includes('placeholder="Select your degree first" disabled'), 'Department input initially disabled with correct placeholder');
+assert(htmlContent.includes('placeholder="Select your degree first" disabled required'), 'Department input initially disabled with correct placeholder');
 
 // --------------------------------------------------------------------------
-// 6. ADMIN PAUSE/RESUME & NO PARTICIPANT RESUME BUTTON
+// 7. ADMIN PAUSE/RESUME & NO PARTICIPANT RESUME BUTTON
 // --------------------------------------------------------------------------
-console.log('\n--- 6. Admin Pause / Resume Controls ---');
+console.log('\n--- 7. Admin Pause / Resume Controls ---');
 
 assert(htmlContent.includes('id="pauseOverlay"'), 'Pause overlay element exists');
 assert(!htmlContent.includes('id="btnParticipantResume"'), 'NO participant-side Resume button exists');
@@ -264,9 +282,9 @@ assert(htmlContent.includes('id="admBtnPause"'), 'Admin Pause button exists');
 assert(htmlContent.includes('id="admBtnResume"'), 'Admin Resume button exists');
 
 // --------------------------------------------------------------------------
-// 7. 45-MINUTE & 60-MINUTE RULES & FORCE QUIT MODAL
+// 8. 45-MIN EARLY EXIT & 60-MIN HARD STOP
 // --------------------------------------------------------------------------
-console.log('\n--- 7. 45-Min Early Exit & 60-Min Hard Stop ---');
+console.log('\n--- 8. 45-Min Early Exit & 60-Min Hard Stop ---');
 
 assert(htmlContent.includes('id="btnForceQuit" class="btn btn-danger" disabled'), 'Force quit button initially disabled');
 assert(htmlContent.includes('id="modalForceQuitConfirm"'), 'Force quit confirmation modal exists');
