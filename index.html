@@ -100,7 +100,7 @@
 
           <div class="reg-form-group">
             <label for="regCollege">College / Institution Name <span class="req">*</span></label>
-            <input type="text" id="regCollege" class="reg-form-input" placeholder="A.V.C. College of Engineering (Autonomous)" value="A.V.C. College of Engineering (Autonomous)" required>
+            <input type="text" id="regCollege" class="reg-form-input" placeholder="A.V.C. College of Engineering (Autonomous)"  required>
             <div class="reg-form-error" id="errCollege">College name is required.</div>
           </div>
 
@@ -303,6 +303,9 @@
                 id="txtCorrectedCode" 
                 class="editor-textarea" 
                 placeholder="Paste your corrected Python code here..."
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
                 spellcheck="false"
               ></textarea>
 
@@ -316,6 +319,10 @@
 
                   <button id="btnNextQuestion" class="btn btn-success" disabled>
                     NEXT QUESTION →
+                  </button>
+
+                  <button id="btnSkipQuestion" class="btn btn-secondary" title="Skip this question to solve it later">
+                    ↷ SKIP QUESTION
                   </button>
 
                   <button id="btnFinishTest" class="btn btn-gold" style="display: none;" disabled>
@@ -624,11 +631,21 @@
     </div>
   </div>
 
-  <!-- FULLSCREEN PAUSE SCREEN OVERLAY (NO PARTICIPANT RESUME BUTTON) -->
+  <!-- FULLSCREEN PAUSE SCREEN OVERLAY WITH COORDINATOR RESUME CONTROLS -->
   <div id="pauseOverlay" class="pause-screen-overlay">
     <div class="pause-icon">⏸</div>
     <h2>TEST PAUSED</h2>
     <p>The coordinator has temporarily paused the competition environment. Please wait for the session to be resumed.</p>
+    
+    <!-- COORDINATOR RESUME CONTROLS (NO PASSWORD REQUIRED) -->
+    <div class="pause-admin-box">
+      <button id="btnOverlayResume" class="btn btn-success btn-resume-overlay">
+        ▶ RESUME TEST
+      </button>
+      <button id="btnOverlayAdminPanel" class="btn btn-secondary btn-admin-overlay">
+        ⚙ COORDINATOR DASHBOARD
+      </button>
+    </div>
   </div>
 
   <!-- CONFETTI CANVAS -->

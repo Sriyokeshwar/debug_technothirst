@@ -1,78 +1,197 @@
 /**
- * APPLICATION CORE & STATE MANAGEMENT
- * Technothirst’26 Python Debugging Championship — AVCCE MCA
+ * TECHNOTHIRST’26 — PYTHON DEBUGGING TOURNAMENT (SEMI-FINAL)
+ * DEPARTMENT OF COMPUTER APPLICATIONS (MCA)
+ * A.V.C. COLLEGE OF ENGINEERING (AUTONOMOUS)
+ *
+ * PURE VANILLA JAVASCRIPT IMPLEMENTATION
+ * - Exactly 4 Questions (No Question 5)
+ * - 5 Intentional Errors per Question (20 Total Errors)
+ * - 60-Minute Hard Stop & 45-Minute Early Exit Threshold
+ * - Admin Authentication & Pause / Resume Controls
+ * - Dynamic Degree & Department Handling
+ * - Multi-Participant Caching & Results Auditing
  */
-const STORAGE_KEY = 'agy_py_competition_v1';
-const ROSTER_KEY = 'agy_participants_roster';
 
+// Global Competition Constants
+const QUESTIONS_COUNT = 4;
+const ERRORS_PER_QUESTION = 5;
+const TOTAL_ERRORS = 20;
+const TOTAL_TIME = 3600;       // 60 minutes in seconds
+const EARLY_EXIT_TIME = 2700;  // 45 minutes in seconds
+const GUIDELINE_UNLOCK_TIME = 15; // 15 seconds
+
+const STORAGE_KEY = 'technothirst26_semifinal_session';
+const ROSTER_KEY = 'technothirst26_participants_roster';
+
+// SHA-256 hash of coordinator authorization key
+const ADMIN_HASH = 'a09d95f1dd880973ce4ca0c15646ebdbe428d5093aa9d7882a7395e025fafd1c';
+
+/* ==========================================================================
+   1. DATA BANK: EXACTLY 4 SEMI-FINAL QUESTIONS (20 ERRORS TOTAL)
+   Q1, Q2, Q3: strictly 8 to 15 lines max
+   Q4: strictly 10 to 18 lines max
+   Prompts: strictly 2 lines max
+   ========================================================================== */
+const COMPETITION_QUESTIONS = [
+  // QUESTION 1 (15 lines, 5 errors)
+  {
+    id: 'semi_q1',
+    number: 1,
+    title: 'Daily Meal Sales & Tax Auditing',
+    shortPrompt: 'Calculate total discounted sales, total tax, and the highest net meal category.\nApply 10% volume discount for quantity > 5, 5% tax for Breakfast (\'B\') vs 8% for others, and track top category.',
+    expectedOutput: 'Sales: 2225.00 Tax: 167.02 Top: D',
+    buggyCode: `items = [['B', 6, 40.0], ['L', 4, 80.0], ['D', 8, 120.0], ['B', 3, 50.0], ['L', 10, 75.0]]
+total_sales = 0.0; total_tax = 0.0; max_bill = -1.0; top_cat = ''
+
+for item in items:
+    cat, qty, price = item[0], item[1], item[2]
+    base = qty * price
+    disc = price * 0.10 if qty < 5 else 0.0
+    sub = base - disc
+    tax_rate = 0.08 if cat == 'B' else 0.05
+    tax = sub * tax_rate; net = sub + tax
+    total_sales += sub; total_tax =+ tax
+    if net < max_bill:
+        max_bill = net; top_cat = cat
+
+print(f"Sales: {total_sales:.2f} Tax: {total_tax:.2f} Top: {top_cat}")`
+  },
+
+  // QUESTION 2 (14 lines, 5 errors)
+  {
+    id: 'semi_q2',
+    number: 2,
+    title: 'Student Exam Attendance & Medical Condonation',
+    shortPrompt: 'Compute attendance percentage and eligibility with a 10% condonation bonus for attendance in [65%, 75%) with medical certificate (\'Y\').\nEligible if attendance >= 75% and score >= 40. Track eligible count and top student.',
+    expectedOutput: 'Eligible: 2, Top: Eshan (93.3%)',
+    buggyCode: `students = [["Aravind", 38, 45, 'N', 78], ["Bhavna", 28, 45, 'Y', 65], ["Eshan", 42, 45, 'N', 92]]
+eligible = 0; max_pct = 0.0; top_student = ""
+
+for i in range(1, len(students)):
+    name, att, total, med, score = students[i]
+    pct = att / total + 100
+    if pct < 75.0 and (pct >= 65.0 or med == 'Y'):
+        pct += 10.0
+    if pct >= 75.0 and score >= 40:
+        eligible = eligble + 1
+        if pct < max_pct:
+            max_pct = pct; top_student = name
+
+print(f"Eligible: {eligible}, Top: {top_student} ({max_pct:.1f}%)")`
+  },
+
+  // QUESTION 3 (15 lines, 5 errors)
+  {
+    id: 'semi_q3',
+    number: 3,
+    title: 'Sensor Matrix Temperature & Hotspots Analysis',
+    shortPrompt: 'Analyze a 3x3 sensor matrix to compute the overall average temperature and count active hotspots.\nA hotspot is strictly greater than its row average and the overall average. Find the peak column index.',
+    expectedOutput: 'Average: 32.78, Hotspots: 4, Peak Column: 2',
+    buggyCode: `grid = [[28.0, 34.0, 31.0], [32.0, 36.0, 38.0], [29.0, 30.0, 37.0]]
+total = 0.0; row_sum = 0.0; hotspots = 0; row_avgs = []
+for r in range(len(grid)):
+    for c in range(len(grid[0])):
+        val = grid[c][r]; row_sum += val; total += val
+    row_avgs.append(row_sum / len(grid[0]))
+overall_avg = total / len(grid)
+for r in range(len(grid)):
+    for c in range(len(grid[0])):
+        if grid[r][c] <= row_avgs[r] and grid[r][c] > overall_avg: hotspots += 1
+col_sums = [grid[0][c] + grid[1][c] + grid[2][c] for c in range(3)]
+peak_c = 0; max_c = -1.0
+for c in range(3):
+    if col_sums[c] < max_c: max_c = col_sums[c]; peak_c = c
+print(f"Average: {overall_avg:.2f}, Hotspots: {hotspots}, Peak Column: {peak_c}")`
+  },
+
+  // QUESTION 4 (18 lines, 5 errors)
+  {
+    id: 'semi_q4',
+    number: 4,
+    title: 'Hostel Tiered Power Tariff & Peak Surcharges',
+    shortPrompt: 'Calculate room electricity with slabs (0-100 @ 3.0, 101-200 @ 4.5, >200 @ 6.0), peak surcharge (+2.0), and 5% green rebate if units < 80.\nTrack total revenue, tier-3 rooms count (>200 units), and the highest billed room.',
+    expectedOutput: 'Revenue: 1988.00, Tier3: 1, Top: Room 103',
+    buggyCode: `def calc_bill(units, peak):
+    if units <= 100: e = units * 3.0
+    elif units <= 200: e = 300.0 + (units - 100) * 4.5
+    else: e = 300.0 + 450.0 + (units - 100) * 6.0
+    tot = e + peak * 2.0
+    return tot - 5.0 if units < 80 else tot
+
+rooms = [[101, 70, 15], [102, 160, 40], [103, 240, 60]]
+total_rev = 0.0; tier3_cnt = 1; max_b = -1.0; top_room = 0
+
+for r, u, p in rooms:
+    b = calc_bill(p, u)
+    total_rev += b
+    if u > 200: tier3_cnt += 1
+    if b < max_b:
+        max_b = b; top_room = r
+
+print(f"Revenue: {total_rev:.2f}, Tier3: {tier3_cnt}, Top: Room {top_room}")`
+  }
+];
+
+/* ==========================================================================
+   2. APPLICATION STATE MANAGEMENT
+   ========================================================================== */
 const STATE = {
-  view: 'registration',
-  stage: 'SEMI-FINAL',      // 'SEMI-FINAL' or 'FINAL TEST'
-  status: 'active',          // 'active', 'paused', 'force_quit', 'completed', 'cancelled'
+  view: 'registration', // 'registration', 'rules', 'countdown', 'workspace', 'results'
+  status: 'active',     // 'active', 'paused', 'completed', 'force_quit', 'time_expired', 'cancelled'
   
-  // Current candidate info
   student: {
     name: '',
     rollNo: '',
-    degree: 'MCA',
-    department: 'Computer Applications',
-    college: 'A.V.C. College of Engineering (AVCCE)'
+    degree: '',
+    department: '',
+    college: 'A.V.C. College of Engineering (Autonomous)'
   },
 
-  // Semi-final state
-  semi: {
-    currentQIndex: 0,
-    solved: [false, false, false, false],
-    errorsFixed: [0, 0, 0, 0],
-    elapsedSeconds: 0,       // 0 to 3600 (60 min)
-    qTimes: [0, 0, 0, 0],     // seconds spent per question
-    lastTickTimestamp: null,
-    earlyExitUnlocked: false,
-    userDismissed45Prompt: false
-  },
-
-  // Final test state
-  final: {
-    activated: false,
-    started: false,
-    currentQIndex: 0,
-    solved: [false, false],
-    errorsFixed: [0, 0],
-    elapsedSeconds: 0,       // 0 to 600 (10 min)
-    qTimes: [0, 0],
-    lastTickTimestamp: null
-  }
+  currentQIndex: 0,
+  solved: [false, false, false, false],
+  skipped: [false, false, false, false],
+  draftCodes: ['', '', '', ''],
+  errorsFixed: [0, 0, 0, 0],
+  elapsedSeconds: 0,
+  qTimes: [0, 0, 0, 0],
+  earlyExitUnlocked: false
 };
 
-function saveState() {
+function saveSession() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
   } catch (e) {
-    console.error('Failed to persist state:', e);
+    console.error('Session persistence failed:', e);
   }
 }
 
-function loadState() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  if (data) {
+function loadSession() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
     try {
-      const parsed = JSON.parse(data);
+      const parsed = JSON.parse(raw);
       Object.assign(STATE, parsed);
+      if (!Array.isArray(STATE.draftCodes) || STATE.draftCodes.length !== QUESTIONS_COUNT) {
+        STATE.draftCodes = ['', '', '', ''];
+      }
+      if (!Array.isArray(STATE.skipped) || STATE.skipped.length !== QUESTIONS_COUNT) {
+        STATE.skipped = [false, false, false, false];
+      }
       return true;
     } catch (e) {
-      console.error('Failed to parse saved state:', e);
+      console.error('Session parsing failed:', e);
     }
   }
   return false;
 }
 
 /* ==========================================================================
-   PARTICIPANTS CACHE ROSTER (MULTI-PARTICIPANT STORAGE)
+   3. PARTICIPANTS CACHE ROSTER ARCHIVE (MULTI-PARTICIPANT)
    ========================================================================== */
 function getParticipantsRoster() {
   const data = localStorage.getItem(ROSTER_KEY);
   if (data) {
-    try { return JSON.parse(data); } catch(e) {}
+    try { return JSON.parse(data); } catch (e) {}
   }
   return [];
 }
@@ -80,11 +199,11 @@ function getParticipantsRoster() {
 function saveParticipantsRoster(roster) {
   try {
     localStorage.setItem(ROSTER_KEY, JSON.stringify(roster));
-  } catch(e) {}
+  } catch (e) {}
 }
 
 function archiveCurrentParticipant() {
-  if (!STATE.student || !STATE.student.name) return;
+  if (!STATE.student || !STATE.student.name || !STATE.student.rollNo) return;
 
   const roster = getParticipantsRoster();
   const existingIdx = roster.findIndex(p => p.rollNo === STATE.student.rollNo);
@@ -97,14 +216,12 @@ function archiveCurrentParticipant() {
     degree: STATE.student.degree,
     department: STATE.student.department,
     college: STATE.student.college,
-    stage: STATE.stage,
     status: STATE.status,
-    semiQuestions: STATE.semi.solved.filter(s => s).length,
-    semiErrors: STATE.semi.errorsFixed.reduce((a, b) => a + b, 0),
-    semiTime: STATE.semi.elapsedSeconds,
-    finalQuestions: STATE.final.started ? STATE.final.solved.filter(s => s).length : null,
-    finalErrors: STATE.final.started ? STATE.final.errorsFixed.reduce((a, b) => a + b, 0) : null,
-    finalTime: STATE.final.started ? STATE.final.elapsedSeconds : null
+    questionsSolved: STATE.solved.filter(s => s).length,
+    errorsSolved: STATE.errorsFixed.reduce((a, b) => a + b, 0),
+    timeTaken: STATE.elapsedSeconds,
+    solvedBreakdown: [...STATE.solved],
+    qTimes: [...STATE.qTimes]
   };
 
   if (existingIdx >= 0) {
@@ -117,49 +234,34 @@ function archiveCurrentParticipant() {
 }
 
 function resetToNewParticipant() {
-  // Archive current first
   archiveCurrentParticipant();
 
-  // Reset state cleanly
   STATE.view = 'registration';
-  STATE.stage = 'SEMI-FINAL';
   STATE.status = 'active';
   STATE.student = {
     name: '',
     rollNo: '',
-    degree: 'MCA',
-    department: 'Computer Applications',
-    college: 'A.V.C. College of Engineering (AVCCE)'
+    degree: '',
+    department: '',
+    college: 'A.V.C. College of Engineering (Autonomous)'
   };
-  STATE.semi = {
-    currentQIndex: 0,
-    solved: [false, false, false, false],
-    errorsFixed: [0, 0, 0, 0],
-    elapsedSeconds: 0,
-    qTimes: [0, 0, 0, 0],
-    lastTickTimestamp: null,
-    earlyExitUnlocked: false,
-    userDismissed45Prompt: false
-  };
-  STATE.final = {
-    activated: false,
-    started: false,
-    currentQIndex: 0,
-    solved: [false, false],
-    errorsFixed: [0, 0],
-    elapsedSeconds: 0,
-    qTimes: [0, 0],
-    lastTickTimestamp: null
-  };
+  STATE.currentQIndex = 0;
+  STATE.solved = [false, false, false, false];
+  STATE.errorsFixed = [0, 0, 0, 0];
+  STATE.elapsedSeconds = 0;
+  STATE.qTimes = [0, 0, 0, 0];
+  STATE.earlyExitUnlocked = false;
 
-  saveState();
+  saveSession();
 
-  // Clear inputs
+  // Reset form inputs
   document.getElementById('regStudentName').value = '';
   document.getElementById('regRollNo').value = '';
-  document.getElementById('regDegree').value = 'MCA';
-  document.getElementById('regDepartment').value = 'Computer Applications';
-  document.getElementById('regCollege').value = 'A.V.C. College of Engineering (AVCCE)';
+  document.getElementById('regDegree').value = '';
+  const deptInput = document.getElementById('regDepartment');
+  deptInput.value = '';
+  deptInput.disabled = true;
+  deptInput.placeholder = 'Select your degree first';
   document.getElementById('chkGuidelines').checked = false;
   document.getElementById('btnStartDebug').disabled = true;
 
@@ -167,15 +269,69 @@ function resetToNewParticipant() {
 }
 
 /* ==========================================================================
-   ACCORDION & GUIDELINE 15-SECOND LOCK
+   4. REGISTRATION: DEGREE DROPDOWN & DYNAMIC DEPARTMENT INPUT
+   ========================================================================== */
+const degreeSelect = document.getElementById('regDegree');
+const deptInput = document.getElementById('regDepartment');
+
+degreeSelect.addEventListener('change', function() {
+  const selVal = this.value.trim();
+  if (selVal && selVal !== '') {
+    deptInput.disabled = false;
+    deptInput.placeholder = 'Enter your department / specialization';
+    deptInput.focus();
+  } else {
+    deptInput.disabled = true;
+    deptInput.value = '';
+    deptInput.placeholder = 'Select your degree first';
+  }
+});
+
+document.getElementById('formRegistration').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const name = document.getElementById('regStudentName').value.trim();
+  const roll = document.getElementById('regRollNo').value.trim();
+  const deg = degreeSelect.value.trim();
+  const dept = deptInput.value.trim();
+  const col = document.getElementById('regCollege').value.trim();
+
+  let valid = true;
+
+  if (!name) { document.getElementById('errStudentName').style.display = 'block'; valid = false; }
+  else { document.getElementById('errStudentName').style.display = 'none'; }
+
+  if (!roll) { document.getElementById('errRollNo').style.display = 'block'; valid = false; }
+  else { document.getElementById('errRollNo').style.display = 'none'; }
+
+  if (!deg) { document.getElementById('errDegree').style.display = 'block'; valid = false; }
+  else { document.getElementById('errDegree').style.display = 'none'; }
+
+  if (!dept) { document.getElementById('errDepartment').style.display = 'block'; valid = false; }
+  else { document.getElementById('errDepartment').style.display = 'none'; }
+
+  if (!col) { document.getElementById('errCollege').style.display = 'block'; valid = false; }
+  else { document.getElementById('errCollege').style.display = 'none'; }
+
+  if (!valid) return;
+
+  STATE.student = { name, rollNo: roll, degree: deg, department: dept, college: col };
+  saveSession();
+
+  switchView('viewRules');
+  initGuidelineTimer();
+});
+
+/* ==========================================================================
+   5. TOURNAMENT GUIDELINES & 15-SECOND LOCK
    ========================================================================== */
 function toggleAccordion(headerEl) {
   const card = headerEl.closest('.acc-card');
   card.classList.toggle('open');
 }
 
-let guidelineTimer = null;
-let guidelineRemaining = 15;
+let guidelineInterval = null;
+let guidelineCountdown = GUIDELINE_UNLOCK_TIME;
 
 function initGuidelineTimer() {
   const badge = document.getElementById('guidelineTimerBadge');
@@ -190,21 +346,21 @@ function initGuidelineTimer() {
     return;
   }
 
-  guidelineRemaining = 15;
+  guidelineCountdown = GUIDELINE_UNLOCK_TIME;
   chk.disabled = true;
   btnStart.disabled = true;
-  badge.textContent = `Lock: ${guidelineRemaining}s remaining`;
+  badge.textContent = `Lock: ${guidelineCountdown}s remaining`;
   badge.classList.remove('unlocked');
 
-  if (guidelineTimer) clearInterval(guidelineTimer);
+  if (guidelineInterval) clearInterval(guidelineInterval);
 
-  guidelineTimer = setInterval(() => {
-    guidelineRemaining--;
-    if (guidelineRemaining > 0) {
-      badge.textContent = `Lock: ${guidelineRemaining}s remaining`;
+  guidelineInterval = setInterval(() => {
+    guidelineCountdown--;
+    if (guidelineCountdown > 0) {
+      badge.textContent = `Lock: ${guidelineCountdown}s remaining`;
     } else {
-      clearInterval(guidelineTimer);
-      guidelineTimer = null;
+      clearInterval(guidelineInterval);
+      guidelineInterval = null;
       badge.textContent = '✓ Guidelines Unlocked';
       badge.classList.add('unlocked');
       chk.disabled = false;
@@ -212,10 +368,23 @@ function initGuidelineTimer() {
   }, 1000);
 }
 
+document.getElementById('chkGuidelines').addEventListener('change', function() {
+  document.getElementById('btnStartDebug').disabled = !this.checked;
+});
+
+document.getElementById('btnStartDebug').addEventListener('click', function() {
+  runCountdownAnimation(() => {
+    STATE.status = 'active';
+    switchView('viewWorkspace');
+    renderWorkspace();
+    startTimerLoop();
+  });
+});
+
 /* ==========================================================================
-   COUNTDOWN ANIMATION (3 -> 2 -> 1 -> GO)
+   6. 3-2-1 COUNTDOWN ANIMATION
    ========================================================================== */
-function run321Countdown(onComplete) {
+function runCountdownAnimation(onComplete) {
   switchView('viewCountdown');
   const numEl = document.getElementById('countdownNumber');
   let count = 3;
@@ -235,7 +404,80 @@ function run321Countdown(onComplete) {
 }
 
 /* ==========================================================================
-   SYNTAX HIGHLIGHTING (PURE VANILLA JS)
+   7. TIMER STATE MACHINE (60-MIN HARD STOP & 45-MIN EARLY EXIT)
+   ========================================================================== */
+let timerInterval = null;
+
+function startTimerLoop() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(timerTick, 1000);
+}
+
+function timerTick() {
+  if (STATE.status === 'paused' || STATE.status === 'completed' || STATE.status === 'force_quit' || STATE.status === 'time_expired') {
+    return;
+  }
+
+  STATE.elapsedSeconds++;
+  const curQ = STATE.currentQIndex;
+  if (curQ >= 0 && curQ < QUESTIONS_COUNT && !STATE.solved[curQ]) {
+    STATE.qTimes[curQ]++;
+  }
+
+  const remaining = Math.max(0, TOTAL_TIME - STATE.elapsedSeconds);
+  updateTimerDisplay(remaining);
+
+  // 45-MINUTE THRESHOLD CHECK (2700s)
+  if (STATE.elapsedSeconds >= EARLY_EXIT_TIME && !STATE.earlyExitUnlocked) {
+    STATE.earlyExitUnlocked = true;
+    document.getElementById('wsEarlyExitStatus').textContent = 'Early exit unlocked (45:00 reached)';
+    document.getElementById('wsEarlyExitStatus').style.color = '#10B981';
+    
+    // Enable Force Quit button at exactly 45:00
+    const btnFq = document.getElementById('btnForceQuit');
+    btnFq.disabled = false;
+    btnFq.removeAttribute('title');
+  }
+
+  // 60-MINUTE HARD STOP (3600s)
+  if (STATE.elapsedSeconds >= TOTAL_TIME) {
+    clearInterval(timerInterval);
+    const allSolved = STATE.solved.every(s => s === true);
+    STATE.status = allSolved ? 'completed' : 'time_expired';
+    saveSession();
+    alert('Maximum test duration reached (60:00). Auto-submitting Semi-Final test.');
+    finishTestSession(STATE.status);
+    return;
+  }
+
+  // Persist timer session every 5 seconds to eliminate synchronous localStorage lag
+  if (STATE.elapsedSeconds % 5 === 0) {
+    saveSession();
+  }
+}
+
+function updateTimerDisplay(remainingSec) {
+  const timerBox = document.getElementById('navTimerBox');
+  const display = document.getElementById('timerDisplay');
+  
+  const mins = Math.floor(remainingSec / 60);
+  const secs = remainingSec % 60;
+  display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+  if (remainingSec <= 300) {
+    timerBox.className = 'nav-timer-box critical';
+    display.className = 'timer-display critical';
+  } else if (remainingSec <= 600) {
+    timerBox.className = 'nav-timer-box warning';
+    display.className = 'timer-display';
+  } else {
+    timerBox.className = 'nav-timer-box';
+    display.className = 'timer-display';
+  }
+}
+
+/* ==========================================================================
+   8. SYNTAX HIGHLIGHTING (PURE VANILLA JS)
    ========================================================================== */
 function highlightPythonSyntax(code) {
   const lines = code.split('\n');
@@ -278,209 +520,167 @@ function escapeHtml(text) {
 }
 
 /* ==========================================================================
-   TIMER STATE MACHINE (60M SEMI & 10M FINAL)
+   9. WORKSPACE CONTROLLER & CYCLICAL QUESTION NAVIGATION
    ========================================================================== */
-let timerInterval = null;
-
-function startTimerLoop() {
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(timerTick, 1000);
+function getNextUnsolvedIndex(fromIndex) {
+  for (let i = 1; i <= QUESTIONS_COUNT; i++) {
+    const nextIdx = (fromIndex + i) % QUESTIONS_COUNT;
+    if (!STATE.solved[nextIdx]) {
+      return nextIdx;
+    }
+  }
+  return -1; // All questions solved!
 }
 
-function timerTick() {
-  if (STATE.status === 'paused' || STATE.status === 'completed' || STATE.status === 'cancelled' || STATE.status === 'force_quit') {
-    return;
-  }
-
-  if (STATE.stage === 'SEMI-FINAL') {
-    STATE.semi.elapsedSeconds++;
-    const currentQ = STATE.semi.currentQIndex;
-    if (currentQ >= 0 && currentQ < 4 && !STATE.semi.solved[currentQ]) {
-      STATE.semi.qTimes[currentQ]++;
-    }
-
-    const totalAllowed = 3600; // 60 minutes
-    const elapsed = STATE.semi.elapsedSeconds;
-    const remaining = Math.max(0, totalAllowed - elapsed);
-
-    updateTimerDisplay(remaining, 3600);
-
-    // 45 Minutes Reached (2700s)
-    if (elapsed >= 2700 && !STATE.semi.earlyExitUnlocked) {
-      STATE.semi.earlyExitUnlocked = true;
-      document.getElementById('wsEarlyExitStatus').textContent = 'Early exit unlocked';
-      document.getElementById('wsEarlyExitStatus').style.color = '#10B981';
-
-      const allSolved = STATE.semi.solved.every(s => s === true);
-      if (!allSolved && !STATE.semi.userDismissed45Prompt) {
-        openModal('modal45MinPrompt');
-        STATE.semi.userDismissed45Prompt = true;
-      }
-    }
-
-    // 60 Minutes Reached (3600s)
-    if (elapsed >= 3600) {
-      clearInterval(timerInterval);
-      STATE.status = 'completed';
-      saveState();
-      alert('Time expired for Semi-Final (60:00). Auto-submitting.');
-      finishSemiFinal('Time Expired');
-      return;
-    }
-
-    saveState();
-  } 
-  else if (STATE.stage === 'FINAL TEST') {
-    STATE.final.elapsedSeconds++;
-    const currentQ = STATE.final.currentQIndex;
-    if (currentQ >= 0 && currentQ < 2 && !STATE.final.solved[currentQ]) {
-      STATE.final.qTimes[currentQ]++;
-    }
-
-    const totalAllowed = 600; // 10 minutes
-    const elapsed = STATE.final.elapsedSeconds;
-    const remaining = Math.max(0, totalAllowed - elapsed);
-
-    updateTimerDisplay(remaining, 600);
-
-    if (elapsed >= 600) {
-      clearInterval(timerInterval);
-      STATE.status = 'completed';
-      saveState();
-      alert('Final Test time expired (10:00). Auto-submitting.');
-      finishFinalTest('Time Expired');
-      return;
-    }
-
-    saveState();
+function saveCurrentDraft() {
+  const editor = document.getElementById('txtCorrectedCode');
+  if (editor && STATE.currentQIndex >= 0 && STATE.currentQIndex < QUESTIONS_COUNT) {
+    STATE.draftCodes[STATE.currentQIndex] = editor.value;
   }
 }
 
-function updateTimerDisplay(remainingSec, totalSec) {
-  const timerBox = document.getElementById('navTimerBox');
-  const display = document.getElementById('timerDisplay');
-  
-  const mins = Math.floor(remainingSec / 60);
-  const secs = remainingSec % 60;
-  display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
-  if (remainingSec <= 300) {
-    timerBox.classList.remove('warning');
-    timerBox.classList.add('critical');
-    display.classList.add('critical');
-  } else if (remainingSec <= 600) {
-    timerBox.classList.add('warning');
-    timerBox.classList.remove('critical');
-    display.classList.remove('critical');
-  } else {
-    timerBox.classList.remove('warning', 'critical');
-    display.classList.remove('critical');
-  }
-}
-
-/* ==========================================================================
-   STREAMLINED TWO-COLUMN WORKSPACE CONTROLLER
-   LEFT: 2-Line Question + Buggy Code (with Copy Button)
-   RIGHT: Paste Area + Verification Feedback (Green/Red) + Next Question
-   ========================================================================== */
 function renderWorkspace() {
-  const isFinal = (STATE.stage === 'FINAL TEST');
-  const questionsList = isFinal ? COMPETITION_QUESTIONS.final : COMPETITION_QUESTIONS.semi;
-  const qIndex = isFinal ? STATE.final.currentQIndex : STATE.semi.currentQIndex;
-  const qData = questionsList[qIndex];
-
-  // Update Nav
-  document.getElementById('navStageText').textContent = STATE.stage;
-  const navBadge = document.getElementById('navStageBadge');
-  if (isFinal) {
-    navBadge.classList.add('final');
-  } else {
-    navBadge.classList.remove('final');
+  // If current question is solved, immediately route to the next unsolved question
+  if (STATE.solved[STATE.currentQIndex]) {
+    const nextUnsolved = getNextUnsolvedIndex(STATE.currentQIndex);
+    if (nextUnsolved !== -1) {
+      STATE.currentQIndex = nextUnsolved;
+    }
   }
 
-  renderStepPills(isFinal ? 2 : 4, qIndex, isFinal ? STATE.final.solved : STATE.semi.solved);
+  const qIdx = STATE.currentQIndex;
+  const qData = COMPETITION_QUESTIONS[qIdx];
+  const allSolved = STATE.solved.every(s => s === true);
+  const nextUnsolved = getNextUnsolvedIndex(qIdx);
+
+  // Nav display
+  document.getElementById('navStageText').textContent = 'SEMI-FINAL';
   document.getElementById('navCenterProgress').style.display = 'flex';
   document.getElementById('navTimerBox').style.display = 'flex';
+  renderStepPills();
 
   // Status Bar
-  document.getElementById('wsStageBadge').textContent = STATE.stage;
-  document.getElementById('wsQuestionNum').textContent = `QUESTION ${qData.number} / ${qData.total}`;
-  document.getElementById('wsDifficulty').textContent = qData.difficulty;
-  if (qData.difficulty.includes('HARD')) {
-    document.getElementById('wsDifficulty').classList.add('hard');
-  } else {
-    document.getElementById('wsDifficulty').classList.remove('hard');
-  }
-
+  document.getElementById('wsQuestionNum').textContent = `QUESTION ${qData.number} / ${QUESTIONS_COUNT}`;
   document.getElementById('wsCandidateName').textContent = `Candidate: ${STATE.student.name || '--'}`;
 
-  // Early Exit text
-  if (!isFinal) {
-    if (STATE.semi.earlyExitUnlocked) {
-      document.getElementById('wsEarlyExitStatus').textContent = 'Early exit unlocked';
-      document.getElementById('wsEarlyExitStatus').style.color = '#10B981';
-    } else {
-      document.getElementById('wsEarlyExitStatus').textContent = 'Early exit unlocks at 45:00';
-      document.getElementById('wsEarlyExitStatus').style.color = 'var(--secondary-color)';
-    }
+  // Early Exit & Force Quit button state
+  const btnFq = document.getElementById('btnForceQuit');
+  if (STATE.earlyExitUnlocked || STATE.elapsedSeconds >= EARLY_EXIT_TIME) {
+    document.getElementById('wsEarlyExitStatus').textContent = 'Early exit unlocked (45:00 reached)';
+    document.getElementById('wsEarlyExitStatus').style.color = '#10B981';
+    btnFq.disabled = false;
+    btnFq.removeAttribute('title');
   } else {
-    document.getElementById('wsEarlyExitStatus').textContent = 'Final Stage (10m Limit)';
+    document.getElementById('wsEarlyExitStatus').textContent = 'Early exit unlocks at 45:00';
+    document.getElementById('wsEarlyExitStatus').style.color = 'var(--secondary-color)';
+    btnFq.disabled = true;
+    btnFq.title = 'Force quit unlocks after 45 minutes';
   }
 
-  // LEFT COLUMN: 2-line prompt + Buggy code
+  // Left Column
   document.getElementById('specTitle').textContent = `Q${qData.number}: ${qData.title}`;
   document.getElementById('specShortPrompt').textContent = qData.shortPrompt;
+  document.getElementById('specExpectedOutput').textContent = qData.expectedOutput;
   document.getElementById('codeViewerBody').innerHTML = highlightPythonSyntax(qData.buggyCode);
 
   const btnCopy = document.getElementById('btnCopyCode');
   btnCopy.textContent = 'COPY CODE';
   btnCopy.classList.remove('copied');
 
-  // RIGHT COLUMN: Clean Paste Area
+  // Right Column: Load candidate draft code if present
   const editor = document.getElementById('txtCorrectedCode');
-  editor.value = '';
+  editor.value = STATE.draftCodes[qIdx] || '';
   updateEditorMetrics();
-
-  // Reset Verification Status Banner
   hideVerificationStatus();
 
-  // Next Question starts disabled until Verify is clicked
+  // Button Handling
   const btnNext = document.getElementById('btnNextQuestion');
-  btnNext.disabled = true;
+  const btnSkip = document.getElementById('btnSkipQuestion');
+  const btnFinish = document.getElementById('btnFinishTest');
 
-  const totalQ = isFinal ? 2 : 4;
-  if (qIndex === totalQ - 1) {
+  if (allSolved) {
+    // All 4 questions are solved!
     btnNext.style.display = 'none';
-    document.getElementById('btnFinishTest').style.display = 'inline-flex';
-    document.getElementById('btnFinishTest').disabled = true; // Enabled once verified or skipped
+    if (btnSkip) btnSkip.style.display = 'none';
+    btnFinish.style.display = 'inline-flex';
+    btnFinish.disabled = false;
   } else {
+    // There are still uncompleted questions
     btnNext.style.display = 'inline-flex';
-    document.getElementById('btnFinishTest').style.display = 'none';
+    btnNext.disabled = false;
+    if (nextUnsolved !== -1 && nextUnsolved < qIdx) {
+      btnNext.textContent = `REROUTE TO Q${nextUnsolved + 1} ↻`;
+    } else {
+      btnNext.textContent = `NEXT QUESTION →`;
+    }
+
+    if (btnSkip) {
+      btnSkip.style.display = 'inline-flex';
+      // Disable skip if this is the sole remaining unsolved question
+      if (nextUnsolved === qIdx || nextUnsolved === -1) {
+        btnSkip.disabled = true;
+        btnSkip.title = 'This is the only remaining uncompleted question';
+      } else {
+        btnSkip.disabled = false;
+        btnSkip.title = 'Skip this question to solve it later';
+      }
+    }
+
+    // After 45 minutes, allow finish test even with partial completion
+    if (STATE.earlyExitUnlocked || STATE.elapsedSeconds >= EARLY_EXIT_TIME) {
+      btnFinish.style.display = 'inline-flex';
+      btnFinish.disabled = false;
+    } else {
+      btnFinish.style.display = 'none';
+      btnFinish.disabled = true;
+    }
   }
 }
 
-function renderStepPills(total, activeIdx, solvedArr) {
+function renderStepPills() {
   const container = document.getElementById('qStepPills');
   container.innerHTML = '';
-  for (let i = 0; i < total; i++) {
+  for (let i = 0; i < QUESTIONS_COUNT; i++) {
     const pill = document.createElement('div');
     pill.className = 'q-step-pill';
     pill.textContent = `Q${i + 1}`;
-    if (solvedArr[i]) {
+
+    if (STATE.solved[i]) {
+      // Solved questions are locked and CANNOT be revisited
       pill.classList.add('completed');
-      pill.textContent = `✓`;
-    } else if (i === activeIdx) {
+      pill.textContent = '✓';
+      pill.title = `Question ${i + 1} completed and locked`;
+      pill.style.cursor = 'not-allowed';
+      // Do not attach navigation listener
+    } else if (i === STATE.currentQIndex) {
       pill.classList.add('active');
+    } else if (STATE.skipped[i]) {
+      pill.classList.add('skipped');
+      pill.title = `Question ${i + 1} skipped (uncompleted)`;
+      pill.style.cursor = 'pointer';
+      pill.addEventListener('click', () => {
+        saveCurrentDraft();
+        STATE.currentQIndex = i;
+        saveSession();
+        renderWorkspace();
+      });
     } else {
-      pill.classList.add('locked');
+      pill.style.cursor = 'pointer';
+      pill.addEventListener('click', () => {
+        saveCurrentDraft();
+        STATE.currentQIndex = i;
+        saveSession();
+        renderWorkspace();
+      });
     }
+
     container.appendChild(pill);
   }
 }
 
 function updateEditorMetrics() {
   const txt = document.getElementById('txtCorrectedCode').value;
-  const lines = txt.split('\n').length;
+  const lines = (txt.match(/\n/g) || []).length + 1;
   const chars = txt.length;
   document.getElementById('editorLineCount').textContent = `Lines: ${lines} | Characters: ${chars}`;
 }
@@ -492,19 +692,19 @@ document.getElementById('txtCorrectedCode').addEventListener('keydown', function
     const end = this.selectionEnd;
     this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
     this.selectionStart = this.selectionEnd = start + 4;
+    STATE.draftCodes[STATE.currentQIndex] = this.value;
     updateEditorMetrics();
   }
 });
 
-document.getElementById('txtCorrectedCode').addEventListener('input', updateEditorMetrics);
+document.getElementById('txtCorrectedCode').addEventListener('input', function() {
+  STATE.draftCodes[STATE.currentQIndex] = this.value;
+  updateEditorMetrics();
+});
 
-/* COPY BUTTON */
+// COPY CODE BUTTON
 document.getElementById('btnCopyCode').addEventListener('click', function() {
-  const isFinal = (STATE.stage === 'FINAL TEST');
-  const questionsList = isFinal ? COMPETITION_QUESTIONS.final : COMPETITION_QUESTIONS.semi;
-  const qIndex = isFinal ? STATE.final.currentQIndex : STATE.semi.currentQIndex;
-  const qData = questionsList[qIndex];
-
+  const qData = COMPETITION_QUESTIONS[STATE.currentQIndex];
   navigator.clipboard.writeText(qData.buggyCode).then(() => {
     this.textContent = '✓ COPIED';
     this.classList.add('copied');
@@ -528,44 +728,159 @@ document.getElementById('btnCopyCode').addEventListener('click', function() {
   });
 });
 
-/* VERIFICATION WITH GREEN/RED BANNER & AUTOMATIC NEXT BUTTON ENABLING */
+/* ==========================================================================
+   10. CODE VERIFICATION ENGINE (EVALUATES ALL 5 INTENTIONAL ERRORS)
+   ========================================================================== */
+function verifySubmittedCode(qData, userCode) {
+  if (!userCode || typeof userCode !== 'string') {
+    return { success: false, errorsSolved: 0 };
+  }
+
+  const lines = userCode.split('\n')
+    .map(l => l.trim())
+    .filter(l => l.length > 0 && !l.startsWith('#'));
+
+  // Anti-Cheat: Reject trivial mock submissions
+  if (lines.length < 8) {
+    return { success: false, errorsSolved: 0 };
+  }
+
+  const codeClean = userCode.replace(/\r/g, '');
+  const hasForOrWhile = /\b(for|while)\b/.test(codeClean);
+  if (!hasForOrWhile) {
+    return { success: false, errorsSolved: 0 };
+  }
+
+  let errorsFixed = 0;
+  const qId = qData.id;
+
+  if (qId === 'semi_q1') {
+    // Error 1: qty > 5
+    const e1 = /qty\s*>\s*5|qty\s*>=\s*6|5\s*<\s*qty/.test(codeClean) && !/qty\s*<\s*5/.test(codeClean);
+    // Error 2: base * 0.10
+    const e2 = /(base|qty\s*\*\s*price)\s*\*\s*(0\.1|0\.10|\.1)/.test(codeClean) && !/price\s*\*\s*0\.10/.test(codeClean);
+    // Error 3: tax rate 0.05 for B, 0.08 for others
+    const e3 = /(0\.05|\.05)\s+if\s+cat\s*==\s*['"]B['"]\s+else\s+(0\.08|\.08)|(0\.08|\.08)\s+if\s+cat\s*!=\s*['"]B['"]\s+else\s+(0\.05|\.05)/.test(codeClean) ||
+               (/if\s+cat\s*==\s*['"]B['"]\s*:[\s\S]*?0\.05/.test(codeClean) && /else\s*:[\s\S]*?0\.08/.test(codeClean));
+    // Error 4: total_tax += tax
+    const e4 = /total_tax\s*\+=\s*tax|total_tax\s*=\s*total_tax\s*\+\s*tax/.test(codeClean) && !/total_tax\s*=\+\s*tax/.test(codeClean);
+    // Error 5: net > max_bill
+    const e5 = /net\s*>\s*max_bill|max_bill\s*<\s*net/.test(codeClean) && !/net\s*<\s*max_bill/.test(codeClean);
+
+    if (e1) errorsFixed++;
+    if (e2) errorsFixed++;
+    if (e3) errorsFixed++;
+    if (e4) errorsFixed++;
+    if (e5) errorsFixed++;
+
+    return { success: (errorsFixed === 5), errorsSolved: errorsFixed };
+  }
+
+  if (qId === 'semi_q2') {
+    // Error 1: start range at 0
+    const e1 = /range\s*\(\s*(0\s*,\s*)?len\s*\(\s*students\s*\)\s*\)/.test(codeClean) && !/range\s*\(\s*1\s*,/.test(codeClean);
+    // Error 2: att / total * 100
+    const e2 = /att\s*\/\s*total\s*\*\s*100|\(\s*att\s*\/\s*total\s*\)\s*\*\s*100/.test(codeClean) && !/att\s*\/\s*total\s*\+\s*100/.test(codeClean);
+    // Error 3: and med == 'Y'
+    const e3 = /pct\s*>=\s*65(\.0)?\s+and\s+med\s*==\s*['"]Y['"]|med\s*==\s*['"]Y['"]\s+and\s+pct\s*>=\s*65/.test(codeClean);
+    // Error 4: variable typo eligble fixed
+    const e4 = !/\beligble\b/.test(codeClean) && /eligible\s*(\+=|\s*=\s*eligible\s*\+\s*1)/.test(codeClean);
+    // Error 5: pct > max_pct
+    const e5 = /pct\s*>\s*max_pct|max_pct\s*<\s*pct/.test(codeClean) && !/pct\s*<\s*max_pct/.test(codeClean);
+
+    if (e1) errorsFixed++;
+    if (e2) errorsFixed++;
+    if (e3) errorsFixed++;
+    if (e4) errorsFixed++;
+    if (e5) errorsFixed++;
+
+    return { success: (errorsFixed === 5), errorsSolved: errorsFixed };
+  }
+
+  if (qId === 'semi_q3') {
+    // Error 1: row_sum reset inside outer row loop
+    const e1 = /for\s+r\s+in\s+range\s*\([\s\S]*?row_sum\s*=\s*0(\.0)?/.test(codeClean) ||
+               (codeClean.indexOf('row_sum = 0') > codeClean.indexOf('for r in range'));
+    // Error 2: grid[r][c] correctly indexed
+    const e2 = /val\s*=\s*grid\s*\[\s*r\s*\]\s*\[\s*c\s*\]/.test(codeClean) && !/val\s*=\s*grid\s*\[\s*c\s*\]\s*\[\s*r\s*\]/.test(codeClean);
+    // Error 3: total cells 9 or len(grid)*len(grid[0])
+    const e3 = /total\s*\/\s*(9|len\s*\(\s*grid\s*\)\s*\*\s*len\s*\(\s*grid\s*\[\s*0\s*\]\s*\)|\(\s*len\s*\(\s*grid\s*\)\s*\*\s*len\s*\(\s*grid\s*\[\s*0\s*\]\s*\)\s*\))/.test(codeClean);
+    // Error 4: grid[r][c] > row_avgs[r]
+    const e4 = /grid\s*\[\s*r\s*\]\s*\[\s*c\s*\]\s*>\s*row_avgs\s*\[\s*r\s*\]/.test(codeClean) && !/grid\s*\[\s*r\s*\]\s*\[\s*c\s*\]\s*<=\s*row_avgs\s*\[\s*r\s*\]/.test(codeClean);
+    // Error 5: col_sums[c] > max_c
+    const e5 = /col_sums\s*\[\s*c\s*\]\s*>\s*max_c|max_c\s*<\s*col_sums\s*\[\s*c\s*\]/.test(codeClean) && !/col_sums\s*\[\s*c\s*\]\s*<\s*max_c/.test(codeClean);
+
+    if (e1) errorsFixed++;
+    if (e2) errorsFixed++;
+    if (e3) errorsFixed++;
+    if (e4) errorsFixed++;
+    if (e5) errorsFixed++;
+
+    return { success: (errorsFixed === 5), errorsSolved: errorsFixed };
+  }
+
+  if (qId === 'semi_q4') {
+    // Error 1: units - 200 in tier 3
+    const e1 = /\(\s*units\s*-\s*200\s*\)\s*\*\s*6(\.0)?/.test(codeClean) && !/\(\s*units\s*-\s*100\s*\)\s*\*\s*6(\.0)?/.test(codeClean);
+    // Error 2: green rebate 5%
+    const e2 = /tot\s*-\s*\(?\s*tot\s*\*\s*(0\.05|\.05)\s*\)?|tot\s*\*\s*(0\.95|\.95)/.test(codeClean) && !/tot\s*-\s*5(\.0)?\b/.test(codeClean);
+    // Error 3: tier3_cnt initialized to 0
+    const e3 = /tier3_cnt\s*=\s*0\b/.test(codeClean) && !/tier3_cnt\s*=\s*1\b/.test(codeClean);
+    // Error 4: calc_bill(u, p) in proper parameter order
+    const e4 = /calc_bill\s*\(\s*u\s*,\s*p\s*\)/.test(codeClean) && !/calc_bill\s*\(\s*p\s*,\s*u\s*\)/.test(codeClean);
+    // Error 5: b > max_b
+    const e5 = /b\s*>\s*max_b|max_b\s*<\s*b/.test(codeClean) && !/b\s*<\s*max_b/.test(codeClean);
+
+    if (e1) errorsFixed++;
+    if (e2) errorsFixed++;
+    if (e3) errorsFixed++;
+    if (e4) errorsFixed++;
+    if (e5) errorsFixed++;
+
+    return { success: (errorsFixed === 5), errorsSolved: errorsFixed };
+  }
+
+  return { success: false, errorsSolved: 0 };
+}
+
+// VERIFY CODE BUTTON CLICK
 document.getElementById('btnVerifyCode').addEventListener('click', function() {
-  const isFinal = (STATE.stage === 'FINAL TEST');
-  const questionsList = isFinal ? COMPETITION_QUESTIONS.final : COMPETITION_QUESTIONS.semi;
-  const qIndex = isFinal ? STATE.final.currentQIndex : STATE.semi.currentQIndex;
-  const qData = questionsList[qIndex];
+  const qIdx = STATE.currentQIndex;
+  const qData = COMPETITION_QUESTIONS[qIdx];
   const userCode = document.getElementById('txtCorrectedCode').value;
+  STATE.draftCodes[qIdx] = userCode;
 
   const result = verifySubmittedCode(qData, userCode);
 
   if (result.success) {
-    // Green theme color banner
-    showVerificationStatus(true, '✓ Question verified successfully. All intentional errors resolved.');
-    if (isFinal) {
-      STATE.final.solved[qIndex] = true;
-      STATE.final.errorsFixed[qIndex] = 5;
+    // Green theme color banner: VERIFIED
+    showVerificationStatus(true, '✓ VERIFIED: Question verified successfully. All 5 intentional errors resolved.');
+    STATE.solved[qIdx] = true;
+    STATE.errorsFixed[qIdx] = 5;
+
+    const allSolved = STATE.solved.every(s => s === true);
+    if (allSolved) {
+      document.getElementById('btnFinishTest').style.display = 'inline-flex';
+      document.getElementById('btnFinishTest').disabled = false;
+      document.getElementById('btnNextQuestion').style.display = 'none';
+      const btnSkip = document.getElementById('btnSkipQuestion');
+      if (btnSkip) btnSkip.style.display = 'none';
+      showVerificationStatus(true, '🎉 All 4 questions verified! Click [ FINISH TEST ] to submit your examination.');
     } else {
-      STATE.semi.solved[qIndex] = true;
-      STATE.semi.errorsFixed[qIndex] = 5;
+      document.getElementById('btnNextQuestion').disabled = false;
     }
   } else {
-    // Red theme color banner
-    showVerificationStatus(false, '✖ Question is not verified. Please check logic or review requirements.');
-    if (isFinal) {
-      STATE.final.errorsFixed[qIndex] = result.errorsSolved;
-    } else {
-      STATE.semi.errorsFixed[qIndex] = result.errorsSolved;
+    // Red theme color banner: UNVERIFIED
+    showVerificationStatus(false, `✖ UNVERIFIED: Question is not verified (${result.errorsSolved}/5 errors resolved). Please check logic and retry, or skip.`);
+    if (!STATE.solved[qIdx]) {
+      STATE.errorsFixed[qIdx] = result.errorsSolved;
     }
+    // Clicking verify automatically allows moving to next question / skipping
+    document.getElementById('btnNextQuestion').disabled = false;
   }
-  saveState();
 
-  // Update pills
-  renderStepPills(isFinal ? 2 : 4, qIndex, isFinal ? STATE.final.solved : STATE.semi.solved);
-
-  // CRITICAL REQUIREMENT:
-  // "Even though the question is verify or not verify, once clicked the verify button, automatically enable the next question moving button."
-  document.getElementById('btnNextQuestion').disabled = false;
-  document.getElementById('btnFinishTest').disabled = false;
+  saveSession();
+  renderStepPills();
 });
 
 function showVerificationStatus(isSuccess, message) {
@@ -580,204 +895,171 @@ function hideVerificationStatus() {
   banner.textContent = '';
 }
 
-/* SKIP QUESTION BUTTON */
-document.getElementById('btnSkipQuestion').addEventListener('click', function() {
-  const isFinal = (STATE.stage === 'FINAL TEST');
-  const totalQ = isFinal ? 2 : 4;
-  const qIndex = isFinal ? STATE.final.currentQIndex : STATE.semi.currentQIndex;
+// SKIP QUESTION BUTTON (DEFER QUESTION TO ANSWER AT LAST)
+const btnSkipEl = document.getElementById('btnSkipQuestion');
+if (btnSkipEl) {
+  btnSkipEl.addEventListener('click', function() {
+    saveCurrentDraft();
+    const qIdx = STATE.currentQIndex;
+    STATE.skipped[qIdx] = true;
 
-  if (confirm('Do you want to skip this question? You will move to the next question.')) {
-    if (qIndex < totalQ - 1) {
-      if (isFinal) STATE.final.currentQIndex++;
-      else STATE.semi.currentQIndex++;
-      saveState();
+    const nextIdx = getNextUnsolvedIndex(qIdx);
+    if (nextIdx !== -1 && nextIdx !== qIdx) {
+      STATE.currentQIndex = nextIdx;
+      saveSession();
       renderWorkspace();
+      showVerificationStatus(false, `↷ Skipped Question ${qIdx + 1}. Moved to Question ${nextIdx + 1}. Uncompleted questions will cycle until answered.`);
     } else {
-      if (isFinal) finishFinalTest('Completed');
-      else finishSemiFinal('Completed');
+      alert(`Question ${qIdx + 1} is the only remaining uncompleted question.`);
+    }
+  });
+}
+
+// NEXT QUESTION BUTTON (CYCLICAL NAVIGATION / REROUTE)
+document.getElementById('btnNextQuestion').addEventListener('click', function() {
+  saveCurrentDraft();
+  const qIdx = STATE.currentQIndex;
+  const nextIdx = getNextUnsolvedIndex(qIdx);
+
+  if (nextIdx !== -1) {
+    STATE.currentQIndex = nextIdx;
+    saveSession();
+    renderWorkspace();
+    if (nextIdx < qIdx) {
+      // Cycled around to unfinished question
+      showVerificationStatus(false, `↻ Rerouted to unfinished Question ${nextIdx + 1}. Complete this question or skip to continue.`);
+    }
+  } else {
+    // All questions solved!
+    const allSolved = STATE.solved.every(s => s === true);
+    if (allSolved) {
+      finishTestSession('completed');
     }
   }
 });
 
-/* NEXT QUESTION NAVIGATION */
-document.getElementById('btnNextQuestion').addEventListener('click', function() {
-  const isFinal = (STATE.stage === 'FINAL TEST');
-  if (isFinal) {
-    STATE.final.currentQIndex++;
-  } else {
-    STATE.semi.currentQIndex++;
-  }
-  saveState();
-  renderWorkspace();
-});
-
-/* FINISH TEST */
+// FINISH TEST BUTTON (ALLOWED BEFORE 45:00 ONLY IF 4/4 SOLVED; ALLOWED AFTER 45:00 ALWAYS)
 document.getElementById('btnFinishTest').addEventListener('click', function() {
-  const isFinal = (STATE.stage === 'FINAL TEST');
-  if (isFinal) {
-    finishFinalTest('Completed');
-  } else {
-    finishSemiFinal('Completed');
+  const allSolved = STATE.solved.every(s => s === true);
+  if (!allSolved && STATE.elapsedSeconds < EARLY_EXIT_TIME && !STATE.earlyExitUnlocked) {
+    alert('Before 45 minutes, you can finish ONLY after solving all 4 questions.');
+    return;
   }
+  finishTestSession(allSolved ? 'completed' : 'force_quit');
 });
 
-/* FORCE QUIT BUTTON */
+// FORCE QUIT BUTTON (ENABLED AT 45:00)
 document.getElementById('btnForceQuit').addEventListener('click', function() {
-  if (confirm('Are you sure you want to Force Quit? Your current progress will be submitted.')) {
-    finishSemiFinal('Force Quit');
+  if (STATE.elapsedSeconds < EARLY_EXIT_TIME && !STATE.earlyExitUnlocked) {
+    alert('Force Quit is locked until 45 minutes have elapsed.');
+    return;
   }
+  openModal('modalForceQuitConfirm');
 });
 
-document.getElementById('btnPromptForceQuit').addEventListener('click', function() {
-  closeModal('modal45MinPrompt');
-  finishSemiFinal('Force Quit');
-});
-
-document.getElementById('btnPromptContinue').addEventListener('click', function() {
-  closeModal('modal45MinPrompt');
+document.getElementById('btnConfirmForceQuit').addEventListener('click', function() {
+  closeModal('modalForceQuitConfirm');
+  finishTestSession('force_quit');
 });
 
 /* ==========================================================================
-   STAGE COMPLETION & RESULTS
+   11. TEST COMPLETION & RESULTS AUDIT SCREEN
    ========================================================================== */
-function finishSemiFinal(statusDesc) {
-  STATE.status = (statusDesc === 'Force Quit') ? 'force_quit' : 'completed';
+function finishTestSession(finalStatus) {
+  if (timerInterval) clearInterval(timerInterval);
+  STATE.status = finalStatus;
   archiveCurrentParticipant();
-  saveState();
-  triggerConfetti();
-  showResultsView();
-}
+  saveSession();
 
-function finishFinalTest(statusDesc) {
-  STATE.status = 'completed';
-  archiveCurrentParticipant();
-  saveState();
-  triggerConfetti();
+  if (finalStatus === 'completed') {
+    triggerConfetti();
+  }
+
   showResultsView();
 }
 
 function showResultsView() {
   switchView('viewResults');
-  
+
   document.getElementById('navCenterProgress').style.display = 'none';
   document.getElementById('navTimerBox').style.display = 'none';
   document.getElementById('navStageText').textContent = 'Audit Results';
 
+  // Candidate credentials
   document.getElementById('resCandName').textContent = STATE.student.name || '--';
   document.getElementById('resCandRoll').textContent = STATE.student.rollNo || '--';
   document.getElementById('resCandDegree').textContent = STATE.student.degree || '--';
   document.getElementById('resCandDept').textContent = STATE.student.department || '--';
   document.getElementById('resCandCollege').textContent = STATE.student.college || '--';
 
-  const semiSolvedCount = STATE.semi.solved.filter(s => s).length;
-  const semiErrorsFixed = STATE.semi.errorsFixed.reduce((a, b) => a + b, 0);
-  const semiMins = Math.floor(STATE.semi.elapsedSeconds / 60);
-  const semiSecs = STATE.semi.elapsedSeconds % 60;
+  const solvedCount = STATE.solved.filter(s => s).length;
+  const errorsFixed = STATE.errorsFixed.reduce((a, b) => a + b, 0);
+  const mins = Math.floor(STATE.elapsedSeconds / 60);
+  const secs = STATE.elapsedSeconds % 60;
 
-  document.getElementById('resSemiQuestions').textContent = `${semiSolvedCount} / 4`;
-  document.getElementById('resSemiErrors').textContent = `${semiErrorsFixed} / 20`;
-  document.getElementById('resSemiTime').textContent = `${semiMins} min ${semiSecs} sec`;
-  document.getElementById('resSemiStatus').textContent = (STATE.status === 'force_quit') ? 'Force Quit' : 'Completed';
-  
-  const badge = document.getElementById('resSemiBadge');
-  badge.textContent = (STATE.status === 'force_quit') ? 'Force Quit' : 'Completed';
-  badge.className = `score-badge ${STATE.status === 'force_quit' ? 'warning' : 'success'}`;
+  document.getElementById('resSemiQuestions').textContent = `${solvedCount} / ${QUESTIONS_COUNT}`;
+  document.getElementById('resSemiErrors').textContent = `${errorsFixed} / ${TOTAL_ERRORS}`;
+  document.getElementById('resSemiTime').textContent = `${mins} min ${secs} sec`;
 
-  const finalCard = document.getElementById('cardFinalResult');
-  if (STATE.final.activated) {
-    finalCard.style.opacity = '1';
-    if (STATE.final.started) {
-      const finalSolvedCount = STATE.final.solved.filter(s => s).length;
-      const finalErrorsFixed = STATE.final.errorsFixed.reduce((a, b) => a + b, 0);
-      const finalMins = Math.floor(STATE.final.elapsedSeconds / 60);
-      const finalSecs = STATE.final.elapsedSeconds % 60;
+  let statusLabel = 'Completed';
+  let badgeClass = 'success';
 
-      document.getElementById('resFinalQuestions').textContent = `${finalSolvedCount} / 2`;
-      document.getElementById('resFinalErrors').textContent = `${finalErrorsFixed} / 10`;
-      document.getElementById('resFinalTime').textContent = `${finalMins} min ${finalSecs} sec`;
-      document.getElementById('resFinalStatus').textContent = 'Completed';
-      document.getElementById('resFinalBadge').textContent = 'Finished';
-      document.getElementById('resFinalBadge').className = 'score-badge success';
-    } else {
-      document.getElementById('resFinalBadge').textContent = 'Ready';
-      document.getElementById('resFinalBadge').className = 'score-badge warning';
-      document.getElementById('resFinalStatus').textContent = 'Activated by Coordinator';
-      document.getElementById('finalReadyBanner').style.display = 'block';
-    }
-  } else {
-    finalCard.style.opacity = '0.55';
-    document.getElementById('finalReadyBanner').style.display = 'none';
+  if (STATE.status === 'force_quit') {
+    statusLabel = 'Force Quit / Incomplete';
+    badgeClass = 'warning';
+  } else if (STATE.status === 'time_expired') {
+    statusLabel = solvedCount === 4 ? 'Completed' : 'Time Expired / Incomplete';
+    badgeClass = solvedCount === 4 ? 'success' : 'danger';
+  } else if (STATE.status === 'cancelled') {
+    statusLabel = 'Cancelled by Admin';
+    badgeClass = 'danger';
   }
 
-  // Timing Table
+  document.getElementById('resSemiStatus').textContent = statusLabel;
+  const badge = document.getElementById('resSemiBadge');
+  badge.textContent = statusLabel;
+  badge.className = `score-badge ${badgeClass}`;
+
+  // Render question-by-question audit table: strictly 4 rows (Q1 to Q4)
   const tbody = document.getElementById('resTimingTableBody');
   tbody.innerHTML = '';
 
-  COMPETITION_QUESTIONS.semi.forEach((q, idx) => {
-    const solved = STATE.semi.solved[idx];
-    const timeSec = STATE.semi.qTimes[idx];
+  COMPETITION_QUESTIONS.forEach((q, idx) => {
+    const isSolved = STATE.solved[idx];
+    const timeSec = STATE.qTimes[idx];
     const m = Math.floor(timeSec / 60);
     const s = timeSec % 60;
+    const errors = isSolved ? 5 : 0; // Exactly 5/5 if solved, 0/5 if unsolved
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>Q${idx + 1}:</strong> ${q.title}</td>
-      <td>${q.difficulty}</td>
-      <td><span class="score-badge ${solved ? 'success' : 'warning'}">${solved ? 'Solved' : 'Unsolved'}</span></td>
+      <td><span class="score-badge ${isSolved ? 'success' : 'warning'}">${isSolved ? 'SOLVED' : 'UNSOLVED'}</span></td>
       <td>${m}m ${s}s</td>
+      <td><strong>${errors} / 5</strong></td>
     `;
     tbody.appendChild(tr);
   });
-
-  if (STATE.final.started) {
-    COMPETITION_QUESTIONS.final.forEach((q, idx) => {
-      const solved = STATE.final.solved[idx];
-      const timeSec = STATE.final.qTimes[idx];
-      const m = Math.floor(timeSec / 60);
-      const s = timeSec % 60;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><strong>FINAL Q${idx + 1}:</strong> ${q.title}</td>
-        <td>${q.difficulty}</td>
-        <td><span class="score-badge ${solved ? 'success' : 'warning'}">${solved ? 'Solved' : 'Unsolved'}</span></td>
-        <td>${m}m ${s}s</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
 }
 
-/* ADD ANOTHER PARTICIPANT BUTTON (ON RESULTS PAGE) */
+// REGISTER ANOTHER PARTICIPANT BUTTON
 document.getElementById('btnAddAnotherParticipant').addEventListener('click', function() {
-  if (confirm('Archive current participant and register a new student for the competition?')) {
+  if (confirm('Archive current participant audit and register a new student for the competition?')) {
     resetToNewParticipant();
   }
 });
 
-/* ENTER FINAL TEST BUTTON */
-document.getElementById('btnEnterFinalTest').addEventListener('click', function() {
-  STATE.stage = 'FINAL TEST';
-  STATE.final.started = true;
-  STATE.final.currentQIndex = 0;
-  STATE.status = 'active';
-  saveState();
-  document.getElementById('finalReadyBanner').style.display = 'none';
-  switchView('viewWorkspace');
-  renderWorkspace();
-});
-
-/* ==========================================================================
-   AUDIT TXT & PRINT
-   ========================================================================== */
+// TXT AUDIT DOWNLOAD
 document.getElementById('btnDownloadTxt').addEventListener('click', function() {
-  const semiSolvedCount = STATE.semi.solved.filter(s => s).length;
-  const semiErrorsFixed = STATE.semi.errorsFixed.reduce((a, b) => a + b, 0);
-  const semiMins = Math.floor(STATE.semi.elapsedSeconds / 60);
-  const semiSecs = STATE.semi.elapsedSeconds % 60;
+  const solvedCount = STATE.solved.filter(s => s).length;
+  const errorsFixed = STATE.errorsFixed.reduce((a, b) => a + b, 0);
+  const mins = Math.floor(STATE.elapsedSeconds / 60);
+  const secs = STATE.elapsedSeconds % 60;
 
   let txt = `=============================================================
 A.V.C. COLLEGE OF ENGINEERING (AUTONOMOUS)
 DEPARTMENT OF COMPUTER APPLICATIONS (MCA)
-TECHNOTHIRST’26 PYTHON DEBUGGING CHAMPIONSHIP AUDIT
+TECHNOTHIRST’26 PYTHON DEBUGGING TOURNAMENT — SEMI-FINAL AUDIT
 =============================================================
 
 CANDIDATE CREDENTIALS:
@@ -788,48 +1070,27 @@ Department:      ${STATE.student.department}
 College:         ${STATE.student.college}
 
 -------------------------------------------------------------
-STAGE 1: SEMI-FINAL PERFORMANCE
+SEMI-FINAL PERFORMANCE
 -------------------------------------------------------------
 Status:           ${STATE.status.toUpperCase()}
-Questions Solved: ${semiSolvedCount} / 4
-Errors Solved:    ${semiErrorsFixed} / 20
-Total Time Taken: ${semiMins} min ${semiSecs} sec
+Questions Solved: ${solvedCount} / ${QUESTIONS_COUNT}
+Errors Solved:    ${errorsFixed} / ${TOTAL_ERRORS}
+Total Time Taken: ${mins} min ${secs} sec
 
-QUESTION BREAKDOWN:
+QUESTION-BY-QUESTION AUDIT BREAKDOWN:
 `;
 
-  COMPETITION_QUESTIONS.semi.forEach((q, i) => {
-    const timeSec = STATE.semi.qTimes[i];
+  COMPETITION_QUESTIONS.forEach((q, i) => {
+    const timeSec = STATE.qTimes[i];
     const m = Math.floor(timeSec / 60);
     const s = timeSec % 60;
-    txt += `Q${i + 1} [${q.title}]: ${STATE.semi.solved[i] ? 'SOLVED' : 'UNSOLVED'} in ${m}m ${s}s\n`;
+    const err = STATE.solved[i] ? 5 : 0;
+    txt += `Q${i + 1} [${q.title}]: ${STATE.solved[i] ? 'SOLVED' : 'UNSOLVED'} | Errors: ${err}/5 | Time: ${m}m ${s}s\n`;
   });
 
-  if (STATE.final.started) {
-    const finalSolvedCount = STATE.final.solved.filter(s => s).length;
-    const finalErrorsFixed = STATE.final.errorsFixed.reduce((a, b) => a + b, 0);
-    const finalMins = Math.floor(STATE.final.elapsedSeconds / 60);
-    const finalSecs = STATE.final.elapsedSeconds % 60;
-
-    txt += `\n-------------------------------------------------------------
-STAGE 2: FINAL TEST PERFORMANCE
--------------------------------------------------------------
-Questions Solved: ${finalSolvedCount} / 2
-Errors Solved:    ${finalErrorsFixed} / 10
-Final Duration:   ${finalMins} min ${finalSecs} sec
-
-FINAL QUESTION BREAKDOWN:
-`;
-    COMPETITION_QUESTIONS.final.forEach((q, i) => {
-      const timeSec = STATE.final.qTimes[i];
-      const m = Math.floor(timeSec / 60);
-      const s = timeSec % 60;
-      txt += `FINAL Q${i + 1} [${q.title}]: ${STATE.final.solved[i] ? 'SOLVED' : 'UNSOLVED'} in ${m}m ${s}s\n`;
-    });
-  }
-
-  txt += `\n=============================================================
-Audit Generated Off-line at: ${new Date().toLocaleString()}
+  txt += `
+=============================================================
+Generated Off-line at: ${new Date().toLocaleString()}
 Institution Seal: AVCCE MCA / Technothirst’26
 =============================================================`;
 
@@ -844,12 +1105,13 @@ Institution Seal: AVCCE MCA / Technothirst’26
   URL.revokeObjectURL(url);
 });
 
+// PRINT / PDF BUTTON
 document.getElementById('btnPrintPdf').addEventListener('click', function() {
   window.print();
 });
 
 /* ==========================================================================
-   ADMIN CONTROLS & PARTICIPANTS ROSTER ARCHIVE
+   12. ADMIN AUTHENTICATION & DASHBOARD CONTROLS
    ========================================================================== */
 document.getElementById('btnAdminOpen').addEventListener('click', function() {
   openModal('modalAdminLogin');
@@ -857,11 +1119,19 @@ document.getElementById('btnAdminOpen').addEventListener('click', function() {
   document.getElementById('errAdminPassword').style.display = 'none';
 });
 
+async function sha256Hex(str) {
+  const enc = new TextEncoder();
+  const data = enc.encode(str);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  const arr = Array.from(new Uint8Array(buf));
+  return arr.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 document.getElementById('btnAdminSubmitLogin').addEventListener('click', async function() {
   const pwd = document.getElementById('txtAdminPassword').value;
-  const isValid = await verifyAdminCredentials(pwd);
+  const hash = await sha256Hex(pwd);
 
-  if (isValid) {
+  if (hash === ADMIN_HASH) {
     closeModal('modalAdminLogin');
     openAdminDashboard();
   } else {
@@ -883,35 +1153,30 @@ function openAdminDashboard() {
 
 function updateAdminDashboardData() {
   document.getElementById('admCandName').textContent = STATE.student.name || '--';
-  
-  const isFinal = (STATE.stage === 'FINAL TEST');
-  const qNum = isFinal ? (STATE.final.currentQIndex + 1) : (STATE.semi.currentQIndex + 1);
-  const totalQ = isFinal ? 2 : 4;
-  document.getElementById('admQuestion').textContent = `${STATE.stage} Q${qNum}/${totalQ}`;
+  document.getElementById('admCandRoll').textContent = STATE.student.rollNo || '--';
+  document.getElementById('admCandDegreeDept').textContent = `${STATE.student.degree || '--'} / ${STATE.student.department || '--'}`;
+  document.getElementById('admQuestion').textContent = `Question ${STATE.currentQIndex + 1} / ${QUESTIONS_COUNT}`;
 
-  const remaining = isFinal ? Math.max(0, 600 - STATE.final.elapsedSeconds) : Math.max(0, 3600 - STATE.semi.elapsedSeconds);
+  const remaining = Math.max(0, TOTAL_TIME - STATE.elapsedSeconds);
   const m = Math.floor(remaining / 60);
   const s = remaining % 60;
   document.getElementById('admTimeLeft').textContent = `${m}m ${s}s`;
 
-  const solvedCount = isFinal ? STATE.final.solved.filter(s => s).length : STATE.semi.solved.filter(s => s).length;
-  document.getElementById('admQuestionsSolved').textContent = `${solvedCount} / ${totalQ}`;
+  const solvedCount = STATE.solved.filter(s => s).length;
+  const errorsSolved = STATE.errorsFixed.reduce((a, b) => a + b, 0);
+  document.getElementById('admQuestionsSolved').textContent = `${solvedCount} / ${QUESTIONS_COUNT}`;
+  document.getElementById('admErrorsSolved').textContent = `${errorsSolved} / ${TOTAL_ERRORS}`;
 
-  if (STATE.status === 'paused') {
+  const isPaused = (STATE.status === 'paused');
+  document.getElementById('admPauseState').textContent = isPaused ? 'PAUSED' : 'ACTIVE';
+  document.getElementById('admPauseState').style.color = isPaused ? '#EF4444' : '#10B981';
+
+  if (isPaused) {
     document.getElementById('admBtnPause').style.display = 'none';
     document.getElementById('admBtnResume').style.display = 'inline-flex';
   } else {
     document.getElementById('admBtnPause').style.display = 'inline-flex';
     document.getElementById('admBtnResume').style.display = 'none';
-  }
-
-  const btnActFinal = document.getElementById('admBtnActivateFinal');
-  if (STATE.final.activated) {
-    btnActFinal.textContent = '✓ FINAL ACTIVATED';
-    btnActFinal.disabled = true;
-  } else {
-    btnActFinal.textContent = '⚡ ACTIVATE FINAL TEST';
-    btnActFinal.disabled = false;
   }
 }
 
@@ -921,20 +1186,21 @@ function renderAdminRoster() {
   tbody.innerHTML = '';
 
   if (roster.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 14px;">No completed candidate records yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-secondary); padding: 14px;">No completed candidate records yet.</td></tr>';
     return;
   }
 
   roster.forEach(p => {
     const tr = document.createElement('tr');
-    const m = Math.floor(p.semiTime / 60);
-    const s = p.semiTime % 60;
+    const m = Math.floor(p.timeTaken / 60);
+    const s = p.timeTaken % 60;
     tr.innerHTML = `
       <td><strong>${p.rollNo}</strong></td>
       <td>${p.name}</td>
       <td>${p.degree}</td>
-      <td>${p.semiQuestions} / 4</td>
-      <td>${p.semiErrors} / 20</td>
+      <td>${p.department}</td>
+      <td>${p.questionsSolved} / ${QUESTIONS_COUNT}</td>
+      <td>${p.errorsSolved} / ${TOTAL_ERRORS}</td>
       <td>${m}m ${s}s</td>
       <td><span class="score-badge ${p.status === 'completed' ? 'success' : 'warning'}">${p.status}</span></td>
     `;
@@ -942,66 +1208,76 @@ function renderAdminRoster() {
   });
 }
 
+// OVERLAY RESUME TEST (NO PASSWORD REQUIRED)
+const btnOverlayResume = document.getElementById('btnOverlayResume');
+if (btnOverlayResume) {
+  btnOverlayResume.addEventListener('click', function() {
+    STATE.status = 'active';
+    saveSession();
+    document.getElementById('pauseOverlay').classList.remove('active');
+    startTimerLoop();
+    updateAdminDashboardData();
+  });
+}
+
+// OVERLAY OPEN COORDINATOR DASHBOARD
+const btnOverlayAdminPanel = document.getElementById('btnOverlayAdminPanel');
+if (btnOverlayAdminPanel) {
+  btnOverlayAdminPanel.addEventListener('click', function() {
+    openModal('modalAdminLogin');
+  });
+}
+
+// ADMIN PAUSE TEST
 document.getElementById('admBtnPause').addEventListener('click', function() {
   STATE.status = 'paused';
-  saveState();
+  saveSession();
   document.getElementById('pauseOverlay').classList.add('active');
   updateAdminDashboardData();
 });
 
+// ADMIN RESUME TEST (NO PASSWORD REQUIRED)
 document.getElementById('admBtnResume').addEventListener('click', function() {
   STATE.status = 'active';
-  saveState();
+  saveSession();
   document.getElementById('pauseOverlay').classList.remove('active');
+  startTimerLoop();
   updateAdminDashboardData();
 });
 
+// ADMIN FORCE FINISH
 document.getElementById('admBtnForceFinish').addEventListener('click', function() {
-  if (confirm('Force finish this participant? Current scores will be submitted.')) {
+  if (confirm('Force finish current participant? Current progress will be audited.')) {
     closeModal('modalAdminDashboard');
-    if (STATE.stage === 'FINAL TEST') {
-      finishFinalTest('Force Finished');
-    } else {
-      finishSemiFinal('Force Finished');
-    }
+    finishTestSession('force_quit');
   }
 });
 
-document.getElementById('admBtnActivateFinal').addEventListener('click', function() {
-  STATE.final.activated = true;
-  saveState();
-  updateAdminDashboardData();
-  alert('Final Test activated for candidate.');
-  if (STATE.view === 'viewResults') {
-    document.getElementById('cardFinalResult').style.opacity = '1';
-    document.getElementById('finalReadyBanner').style.display = 'block';
-  }
-});
-
+// ADMIN CANCEL TEST
 document.getElementById('admBtnCancel').addEventListener('click', function() {
-  if (confirm('Cancel candidate test? Data will be preserved.')) {
-    STATE.status = 'cancelled';
-    archiveCurrentParticipant();
-    saveState();
+  if (confirm('Cancel this candidate test? Session will be terminated.')) {
     closeModal('modalAdminDashboard');
-    showResultsView();
+    finishTestSession('cancelled');
   }
 });
 
+// ADMIN NEW PARTICIPANT
 document.getElementById('admBtnNewParticipant').addEventListener('click', function() {
-  if (confirm('Reset system for a new participant? Current participant data will be cached in the roster.')) {
+  if (confirm('Reset environment for a new participant? Current session will be archived in the roster.')) {
     closeModal('modalAdminDashboard');
     resetToNewParticipant();
   }
 });
 
+// CLEAR ROSTER CACHE
 document.getElementById('admBtnClearRoster').addEventListener('click', function() {
-  if (confirm('Are you sure you want to clear the saved participant roster cache? This cannot be undone.')) {
+  if (confirm('Clear all saved participant records from local cache? This cannot be undone.')) {
     saveParticipantsRoster([]);
     renderAdminRoster();
   }
 });
 
+// EXPORT ROSTER AS CSV
 document.getElementById('admBtnExportAllCsv').addEventListener('click', function() {
   const roster = getParticipantsRoster();
   if (roster.length === 0) {
@@ -1009,16 +1285,16 @@ document.getElementById('admBtnExportAllCsv').addEventListener('click', function
     return;
   }
 
-  let csv = 'RollNo,Name,Degree,Department,College,Stage,SemiQuestions,SemiErrors,SemiTimeSeconds,FinalQuestions,FinalErrors,Status,Timestamp\n';
+  let csv = 'RollNo,Name,Degree,Department,College,QuestionsSolved,ErrorsSolved,TimeTakenSeconds,Status,Timestamp\n';
   roster.forEach(p => {
-    csv += `"${p.rollNo}","${p.name}","${p.degree}","${p.department}","${p.college}","${p.stage}",${p.semiQuestions},${p.semiErrors},${p.semiTime},${p.finalQuestions || 0},${p.finalErrors || 0},"${p.status}","${p.timestamp}"\n`;
+    csv += `"${p.rollNo}","${p.name}","${p.degree}","${p.department}","${p.college}",${p.questionsSolved},${p.errorsSolved},${p.timeTaken},"${p.status}","${p.timestamp}"\n`;
   });
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `Technothirst26_Participants_Roster.csv`;
+  a.download = 'Technothirst26_Participants_Roster.csv';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1026,7 +1302,7 @@ document.getElementById('admBtnExportAllCsv').addEventListener('click', function
 });
 
 /* ==========================================================================
-   MODAL CONTROLLER & VIEW SWITCHER
+   13. MODAL CONTROLLER & VIEW SWITCHER
    ========================================================================== */
 function openModal(id) {
   document.getElementById(id).classList.add('active');
@@ -1041,78 +1317,106 @@ function switchView(viewId) {
   document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active'));
   const target = document.getElementById(viewId);
   if (target) target.classList.add('active');
-  saveState();
+  saveSession();
 }
 
 /* ==========================================================================
-   REGISTRATION FORM SUBMIT
+   14. CANVASES & CONFETTI ENGINE
    ========================================================================== */
-document.getElementById('formRegistration').addEventListener('submit', function(e) {
-  e.preventDefault();
+let confettiCanvas = null;
+let confettiCtx = null;
+let confettiParticles = [];
+let confettiAnimationId = null;
 
-  const name = document.getElementById('regStudentName').value.trim();
-  const roll = document.getElementById('regRollNo').value.trim();
-  const deg = document.getElementById('regDegree').value;
-  const dept = document.getElementById('regDepartment').value.trim();
-  const col = document.getElementById('regCollege').value.trim();
+function initConfettiCanvas() {
+  confettiCanvas = document.getElementById('confettiCanvas');
+  if (!confettiCanvas) return;
+  confettiCtx = confettiCanvas.getContext('2d');
 
-  let valid = true;
-  if (!name) { document.getElementById('errStudentName').style.display = 'block'; valid = false; }
-  else document.getElementById('errStudentName').style.display = 'none';
+  function resize() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+}
 
-  if (!roll) { document.getElementById('errRollNo').style.display = 'block'; valid = false; }
-  else document.getElementById('errRollNo').style.display = 'none';
+function triggerConfetti() {
+  if (!confettiCanvas) initConfettiCanvas();
+  confettiParticles = [];
+  const colors = ['#06B6D4', '#075985', '#FACC15', '#10B981', '#F472B6', '#38BDF8'];
 
-  if (!deg) { document.getElementById('errDegree').style.display = 'block'; valid = false; }
-  else document.getElementById('errDegree').style.display = 'none';
+  for (let i = 0; i < 90; i++) {
+    confettiParticles.push({
+      x: window.innerWidth * 0.5,
+      y: window.innerHeight * 0.4,
+      vx: (Math.random() - 0.5) * 14,
+      vy: (Math.random() - 0.5) * 14 - 3,
+      size: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rSpeed: (Math.random() - 0.5) * 8,
+      gravity: 0.28,
+      opacity: 1
+    });
+  }
 
-  if (!dept) { document.getElementById('errDepartment').style.display = 'block'; valid = false; }
-  else document.getElementById('errDepartment').style.display = 'none';
+  if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
+  animateConfetti();
+}
 
-  if (!col) { document.getElementById('errCollege').style.display = 'block'; valid = false; }
-  else document.getElementById('errCollege').style.display = 'none';
+function animateConfetti() {
+  if (!confettiCtx) return;
+  confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
 
-  if (!valid) return;
+  let alive = 0;
+  confettiParticles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += p.gravity;
+    p.rotation += p.rSpeed;
+    p.opacity -= 0.008;
 
-  STATE.student = { name, rollNo: roll, degree: deg, department: dept, college: col };
-  saveState();
-
-  switchView('viewRules');
-  initGuidelineTimer();
-});
-
-document.getElementById('chkGuidelines').addEventListener('change', function() {
-  document.getElementById('btnStartDebug').disabled = !this.checked;
-});
-
-document.getElementById('btnStartDebug').addEventListener('click', function() {
-  run321Countdown(() => {
-    STATE.stage = 'SEMI-FINAL';
-    STATE.status = 'active';
-    switchView('viewWorkspace');
-    renderWorkspace();
-    startTimerLoop();
+    if (p.opacity > 0) {
+      alive++;
+      confettiCtx.save();
+      confettiCtx.translate(p.x, p.y);
+      confettiCtx.rotate((p.rotation * Math.PI) / 180);
+      confettiCtx.globalAlpha = p.opacity;
+      confettiCtx.fillStyle = p.color;
+      confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+      confettiCtx.restore();
+    }
   });
-});
+
+  if (alive > 0) {
+    confettiAnimationId = requestAnimationFrame(animateConfetti);
+  } else {
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  }
+}
 
 /* ==========================================================================
-   INITIALIZATION & RECOVERY ON LOAD
+   15. INITIALIZATION ON DOM READY
    ========================================================================== */
 window.addEventListener('DOMContentLoaded', () => {
   initConfettiCanvas();
-  const hasSaved = loadState();
+  const hasSaved = loadSession();
 
-  if (hasSaved && STATE.student && STATE.student.name) {
+  if (hasSaved && STATE.student && STATE.student.name && STATE.student.rollNo) {
+    // If test was paused by admin, keep paused overlay active
     if (STATE.status === 'paused') {
       document.getElementById('pauseOverlay').classList.add('active');
     }
 
-    if (STATE.view === 'viewResults' || STATE.status === 'completed' || STATE.status === 'cancelled') {
+    if (STATE.view === 'viewResults' || STATE.status === 'completed' || STATE.status === 'force_quit' || STATE.status === 'time_expired' || STATE.status === 'cancelled') {
       showResultsView();
-    } else if (STATE.view === 'viewWorkspace' && (STATE.status === 'active' || STATE.status === 'paused')) {
+    } else if (STATE.view === 'viewWorkspace') {
       switchView('viewWorkspace');
       renderWorkspace();
-      startTimerLoop();
+      if (STATE.status === 'active') {
+        startTimerLoop();
+      }
     } else if (STATE.view === 'viewRules') {
       switchView('viewRules');
       initGuidelineTimer();
@@ -1123,3 +1427,6 @@ window.addEventListener('DOMContentLoaded', () => {
     switchView('viewRegistration');
   }
 });
+
+// Guarantee session persistence on window close/refresh
+window.addEventListener('beforeunload', saveSession);

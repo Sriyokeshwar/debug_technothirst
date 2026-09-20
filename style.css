@@ -195,6 +195,14 @@ body {
   background: var(--success-bg);
   border-color: var(--success-border);
   color: var(--success-green);
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+.q-step-pill.skipped {
+  background: #FFFBEB;
+  border-color: #FCD34D;
+  color: #B45309;
 }
 
 .q-step-pill.locked {
@@ -1315,7 +1323,7 @@ body {
   height: 100vh;
   background: rgba(6, 43, 69, 0.65);
   backdrop-filter: blur(6px);
-  z-index: 1000;
+  z-index: 10001;
   align-items: center;
   justify-content: center;
   padding: 20px;
@@ -1494,6 +1502,53 @@ body {
   color: #CBD5E1;
   max-width: 500px;
   line-height: 1.6;
+}
+
+.pause-admin-box {
+  margin-top: 28px;
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  z-index: 10000;
+}
+
+.btn-resume-overlay {
+  background: linear-gradient(135deg, #10B981, #059669) !important;
+  color: #FFFFFF !important;
+  border: 1px solid #34D399 !important;
+  padding: 12px 28px !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45) !important;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+.btn-resume-overlay:hover {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(16, 185, 129, 0.6) !important;
+}
+
+.btn-admin-overlay {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #FFFFFF !important;
+  padding: 12px 22px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+.btn-admin-overlay:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* CONFETTI CANVAS */

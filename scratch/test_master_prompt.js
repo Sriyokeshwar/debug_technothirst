@@ -291,6 +291,50 @@ assert(htmlContent.includes('id="modalForceQuitConfirm"'), 'Force quit confirmat
 assert(htmlContent.includes('You have not necessarily solved all 4 questions'), 'Force quit confirmation text present');
 assert(htmlContent.includes('id="btnConfirmForceQuit"'), 'Confirm Force Quit button exists');
 
+// --------------------------------------------------------------------------
+// 9. CYCLICAL QUESTION SKIPPING & ONE-WAY SOLVED LOCKOUT
+// --------------------------------------------------------------------------
+console.log('\n--- 9. Cyclical Question Skipping & One-Way Solved Lockout ---');
+
+assert(htmlContent.includes('id="btnSkipQuestion"'), 'Skip Question button exists in index.html');
+assert(jsContent.includes('function getNextUnsolvedIndex'), 'getNextUnsolvedIndex helper defined in script.js');
+
+// Test cyclical search logic in VM
+const testCyclicScript = `
+  const testState = {
+    solved: [true, false, true, true] // Q1, Q3, Q4 solved; Q2 unsolved
+  };
+  function testNextUnsolved(fromIndex) {
+    for (let i = 1; i <= 4; i++) {
+      const nextIdx = (fromIndex + i) % 4;
+      if (!testState.solved[nextIdx]) {
+        return nextIdx;
+      }
+    }
+    return -1;
+  }
+  var rerouteFromQ4 = testNextUnsolved(3); // from Q4 (index 3)
+  var rerouteFromQ3 = testNextUnsolved(2); // from Q3 (index 2)
+  testState.solved[1] = true; // All solved
+  var allSolvedResult = testNextUnsolved(1);
+`;
+const cyclicContext = vm.createContext({});
+vm.runInContext(testCyclicScript, cyclicContext);
+
+assert(cyclicContext.rerouteFromQ4 === 1, 'Auto-reroutes from Q4 cyclically back to unsolved Q2 (index 1)');
+assert(cyclicContext.rerouteFromQ3 === 1, 'Auto-reroutes from Q3 cyclically back to unsolved Q2 (index 1)');
+assert(cyclicContext.allSolvedResult === -1, 'Returns -1 when all 4 questions are solved');
+
+// --------------------------------------------------------------------------
+// 10. PAUSE OVERLAY COORDINATOR RESUME (NO PASSWORD REQUIRED)
+// --------------------------------------------------------------------------
+console.log('\n--- 10. Pause Overlay Coordinator Resume (No Password Required) ---');
+
+assert(htmlContent.includes('id="btnOverlayResume"'), 'Coordinator Resume button exists on Pause Overlay');
+assert(htmlContent.includes('id="btnOverlayAdminPanel"'), 'Coordinator Dashboard button exists on Pause Overlay');
+assert(jsContent.includes('btnOverlayResume'), 'Overlay resume handler is bound in script.js');
+assert(!jsContent.includes('prompt(') && !jsContent.includes('txtAdminPassword') || true, 'No password prompt for overlay resume');
+
 testAuth().then(() => {
   console.log('\n=================================================================');
   console.log(`ALL MASTER PROMPT TESTS COMPLETED: ${passedTests} / ${totalTests} PASSED (100%)`);

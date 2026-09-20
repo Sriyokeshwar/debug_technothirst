@@ -149,6 +149,8 @@ const STATE = {
 
   currentQIndex: 0,
   solved: [false, false, false, false],
+  skipped: [false, false, false, false],
+  draftCodes: ['', '', '', ''],
   errorsFixed: [0, 0, 0, 0],
   elapsedSeconds: 0,
   qTimes: [0, 0, 0, 0],
@@ -169,6 +171,12 @@ function loadSession() {
     try {
       const parsed = JSON.parse(raw);
       Object.assign(STATE, parsed);
+      if (!Array.isArray(STATE.draftCodes) || STATE.draftCodes.length !== QUESTIONS_COUNT) {
+        STATE.draftCodes = ['', '', '', ''];
+      }
+      if (!Array.isArray(STATE.skipped) || STATE.skipped.length !== QUESTIONS_COUNT) {
+        STATE.skipped = [false, false, false, false];
+      }
       return true;
     } catch (e) {
       console.error('Session parsing failed:', e);
@@ -442,7 +450,10 @@ function timerTick() {
     return;
   }
 
-  saveSession();
+  // Persist timer session every 5 seconds to eliminate synchronous localStorage lag
+  if (STATE.elapsedSeconds % 5 === 0) {
+    saveSession();
+  }
 }
 
 function updateTimerDisplay(remainingSec) {
@@ -509,11 +520,38 @@ function escapeHtml(text) {
 }
 
 /* ==========================================================================
-   9. WORKSPACE CONTROLLER & QUESTION NAVIGATION
+   9. WORKSPACE CONTROLLER & CYCLICAL QUESTION NAVIGATION
    ========================================================================== */
+function getNextUnsolvedIndex(fromIndex) {
+  for (let i = 1; i <= QUESTIONS_COUNT; i++) {
+    const nextIdx = (fromIndex + i) % QUESTIONS_COUNT;
+    if (!STATE.solved[nextIdx]) {
+      return nextIdx;
+    }
+  }
+  return -1; // All questions solved!
+}
+
+function saveCurrentDraft() {
+  const editor = document.getElementById('txtCorrectedCode');
+  if (editor && STATE.currentQIndex >= 0 && STATE.currentQIndex < QUESTIONS_COUNT) {
+    STATE.draftCodes[STATE.currentQIndex] = editor.value;
+  }
+}
+
 function renderWorkspace() {
+  // If current question is solved, immediately route to the next unsolved question
+  if (STATE.solved[STATE.currentQIndex]) {
+    const nextUnsolved = getNextUnsolvedIndex(STATE.currentQIndex);
+    if (nextUnsolved !== -1) {
+      STATE.currentQIndex = nextUnsolved;
+    }
+  }
+
   const qIdx = STATE.currentQIndex;
   const qData = COMPETITION_QUESTIONS[qIdx];
+  const allSolved = STATE.solved.every(s => s === true);
+  const nextUnsolved = getNextUnsolvedIndex(qIdx);
 
   // Nav display
   document.getElementById('navStageText').textContent = 'SEMI-FINAL';
@@ -549,30 +587,53 @@ function renderWorkspace() {
   btnCopy.textContent = 'COPY CODE';
   btnCopy.classList.remove('copied');
 
-  // Right Column
+  // Right Column: Load candidate draft code if present
   const editor = document.getElementById('txtCorrectedCode');
-  editor.value = '';
+  editor.value = STATE.draftCodes[qIdx] || '';
   updateEditorMetrics();
   hideVerificationStatus();
 
-  // Next Question / Finish Test button handling
+  // Button Handling
   const btnNext = document.getElementById('btnNextQuestion');
+  const btnSkip = document.getElementById('btnSkipQuestion');
   const btnFinish = document.getElementById('btnFinishTest');
 
-  if (qIdx === QUESTIONS_COUNT - 1) {
-    // Question 4: hide Next, show Finish Test
+  if (allSolved) {
+    // All 4 questions are solved!
     btnNext.style.display = 'none';
+    if (btnSkip) btnSkip.style.display = 'none';
     btnFinish.style.display = 'inline-flex';
-
-    // Finish Test is allowed ONLY if 4/4 questions are solved
-    const allSolved = STATE.solved.every(s => s === true);
-    btnFinish.disabled = !allSolved;
+    btnFinish.disabled = false;
   } else {
+    // There are still uncompleted questions
     btnNext.style.display = 'inline-flex';
-    btnFinish.style.display = 'none';
+    btnNext.disabled = false;
+    if (nextUnsolved !== -1 && nextUnsolved < qIdx) {
+      btnNext.textContent = `REROUTE TO Q${nextUnsolved + 1} ↻`;
+    } else {
+      btnNext.textContent = `NEXT QUESTION →`;
+    }
 
-    // Next is enabled if current question is already solved
-    btnNext.disabled = !STATE.solved[qIdx];
+    if (btnSkip) {
+      btnSkip.style.display = 'inline-flex';
+      // Disable skip if this is the sole remaining unsolved question
+      if (nextUnsolved === qIdx || nextUnsolved === -1) {
+        btnSkip.disabled = true;
+        btnSkip.title = 'This is the only remaining uncompleted question';
+      } else {
+        btnSkip.disabled = false;
+        btnSkip.title = 'Skip this question to solve it later';
+      }
+    }
+
+    // After 45 minutes, allow finish test even with partial completion
+    if (STATE.earlyExitUnlocked || STATE.elapsedSeconds >= EARLY_EXIT_TIME) {
+      btnFinish.style.display = 'inline-flex';
+      btnFinish.disabled = false;
+    } else {
+      btnFinish.style.display = 'none';
+      btnFinish.disabled = true;
+    }
   }
 }
 
@@ -585,21 +646,33 @@ function renderStepPills() {
     pill.textContent = `Q${i + 1}`;
 
     if (STATE.solved[i]) {
+      // Solved questions are locked and CANNOT be revisited
       pill.classList.add('completed');
       pill.textContent = '✓';
+      pill.title = `Question ${i + 1} completed and locked`;
+      pill.style.cursor = 'not-allowed';
+      // Do not attach navigation listener
     } else if (i === STATE.currentQIndex) {
       pill.classList.add('active');
+    } else if (STATE.skipped[i]) {
+      pill.classList.add('skipped');
+      pill.title = `Question ${i + 1} skipped (uncompleted)`;
+      pill.style.cursor = 'pointer';
+      pill.addEventListener('click', () => {
+        saveCurrentDraft();
+        STATE.currentQIndex = i;
+        saveSession();
+        renderWorkspace();
+      });
     } else {
-      pill.classList.add('locked');
+      pill.style.cursor = 'pointer';
+      pill.addEventListener('click', () => {
+        saveCurrentDraft();
+        STATE.currentQIndex = i;
+        saveSession();
+        renderWorkspace();
+      });
     }
-
-    // Allow clicking on any unlocked/solved question or current
-    pill.style.cursor = 'pointer';
-    pill.addEventListener('click', () => {
-      STATE.currentQIndex = i;
-      saveSession();
-      renderWorkspace();
-    });
 
     container.appendChild(pill);
   }
@@ -607,7 +680,7 @@ function renderStepPills() {
 
 function updateEditorMetrics() {
   const txt = document.getElementById('txtCorrectedCode').value;
-  const lines = txt.split('\n').length;
+  const lines = (txt.match(/\n/g) || []).length + 1;
   const chars = txt.length;
   document.getElementById('editorLineCount').textContent = `Lines: ${lines} | Characters: ${chars}`;
 }
@@ -619,11 +692,15 @@ document.getElementById('txtCorrectedCode').addEventListener('keydown', function
     const end = this.selectionEnd;
     this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
     this.selectionStart = this.selectionEnd = start + 4;
+    STATE.draftCodes[STATE.currentQIndex] = this.value;
     updateEditorMetrics();
   }
 });
 
-document.getElementById('txtCorrectedCode').addEventListener('input', updateEditorMetrics);
+document.getElementById('txtCorrectedCode').addEventListener('input', function() {
+  STATE.draftCodes[STATE.currentQIndex] = this.value;
+  updateEditorMetrics();
+});
 
 // COPY CODE BUTTON
 document.getElementById('btnCopyCode').addEventListener('click', function() {
@@ -771,6 +848,7 @@ document.getElementById('btnVerifyCode').addEventListener('click', function() {
   const qIdx = STATE.currentQIndex;
   const qData = COMPETITION_QUESTIONS[qIdx];
   const userCode = document.getElementById('txtCorrectedCode').value;
+  STATE.draftCodes[qIdx] = userCode;
 
   const result = verifySubmittedCode(qData, userCode);
 
@@ -780,25 +858,25 @@ document.getElementById('btnVerifyCode').addEventListener('click', function() {
     STATE.solved[qIdx] = true;
     STATE.errorsFixed[qIdx] = 5;
 
-    // Successful verification unlocks NEXT QUESTION
-    if (qIdx < QUESTIONS_COUNT - 1) {
-      document.getElementById('btnNextQuestion').disabled = false;
+    const allSolved = STATE.solved.every(s => s === true);
+    if (allSolved) {
+      document.getElementById('btnFinishTest').style.display = 'inline-flex';
+      document.getElementById('btnFinishTest').disabled = false;
+      document.getElementById('btnNextQuestion').style.display = 'none';
+      const btnSkip = document.getElementById('btnSkipQuestion');
+      if (btnSkip) btnSkip.style.display = 'none';
+      showVerificationStatus(true, '🎉 All 4 questions verified! Click [ FINISH TEST ] to submit your examination.');
     } else {
-      // Question 4: Check if all 4 are solved
-      const allSolved = STATE.solved.every(s => s === true);
-      if (allSolved) {
-        document.getElementById('btnFinishTest').disabled = false;
-      }
+      document.getElementById('btnNextQuestion').disabled = false;
     }
   } else {
     // Red theme color banner: UNVERIFIED
-    showVerificationStatus(false, `✖ UNVERIFIED: Question is not verified (${result.errorsSolved}/5 errors resolved). Please check logic and retry.`);
+    showVerificationStatus(false, `✖ UNVERIFIED: Question is not verified (${result.errorsSolved}/5 errors resolved). Please check logic and retry, or skip.`);
     if (!STATE.solved[qIdx]) {
       STATE.errorsFixed[qIdx] = result.errorsSolved;
-      if (qIdx < QUESTIONS_COUNT - 1) {
-        document.getElementById('btnNextQuestion').disabled = true;
-      }
     }
+    // Clicking verify automatically allows moving to next question / skipping
+    document.getElementById('btnNextQuestion').disabled = false;
   }
 
   saveSession();
@@ -817,23 +895,57 @@ function hideVerificationStatus() {
   banner.textContent = '';
 }
 
-// NEXT QUESTION BUTTON
+// SKIP QUESTION BUTTON (DEFER QUESTION TO ANSWER AT LAST)
+const btnSkipEl = document.getElementById('btnSkipQuestion');
+if (btnSkipEl) {
+  btnSkipEl.addEventListener('click', function() {
+    saveCurrentDraft();
+    const qIdx = STATE.currentQIndex;
+    STATE.skipped[qIdx] = true;
+
+    const nextIdx = getNextUnsolvedIndex(qIdx);
+    if (nextIdx !== -1 && nextIdx !== qIdx) {
+      STATE.currentQIndex = nextIdx;
+      saveSession();
+      renderWorkspace();
+      showVerificationStatus(false, `↷ Skipped Question ${qIdx + 1}. Moved to Question ${nextIdx + 1}. Uncompleted questions will cycle until answered.`);
+    } else {
+      alert(`Question ${qIdx + 1} is the only remaining uncompleted question.`);
+    }
+  });
+}
+
+// NEXT QUESTION BUTTON (CYCLICAL NAVIGATION / REROUTE)
 document.getElementById('btnNextQuestion').addEventListener('click', function() {
-  if (STATE.currentQIndex < QUESTIONS_COUNT - 1) {
-    STATE.currentQIndex++;
+  saveCurrentDraft();
+  const qIdx = STATE.currentQIndex;
+  const nextIdx = getNextUnsolvedIndex(qIdx);
+
+  if (nextIdx !== -1) {
+    STATE.currentQIndex = nextIdx;
     saveSession();
     renderWorkspace();
+    if (nextIdx < qIdx) {
+      // Cycled around to unfinished question
+      showVerificationStatus(false, `↻ Rerouted to unfinished Question ${nextIdx + 1}. Complete this question or skip to continue.`);
+    }
+  } else {
+    // All questions solved!
+    const allSolved = STATE.solved.every(s => s === true);
+    if (allSolved) {
+      finishTestSession('completed');
+    }
   }
 });
 
-// FINISH TEST BUTTON (ALLOWED ONLY WHEN 4/4 QUESTIONS ARE SOLVED)
+// FINISH TEST BUTTON (ALLOWED BEFORE 45:00 ONLY IF 4/4 SOLVED; ALLOWED AFTER 45:00 ALWAYS)
 document.getElementById('btnFinishTest').addEventListener('click', function() {
   const allSolved = STATE.solved.every(s => s === true);
-  if (!allSolved) {
-    alert('You cannot finish the test normally before solving all 4 questions.');
+  if (!allSolved && STATE.elapsedSeconds < EARLY_EXIT_TIME && !STATE.earlyExitUnlocked) {
+    alert('Before 45 minutes, you can finish ONLY after solving all 4 questions.');
     return;
   }
-  finishTestSession('completed');
+  finishTestSession(allSolved ? 'completed' : 'force_quit');
 });
 
 // FORCE QUIT BUTTON (ENABLED AT 45:00)
@@ -1096,6 +1208,26 @@ function renderAdminRoster() {
   });
 }
 
+// OVERLAY RESUME TEST (NO PASSWORD REQUIRED)
+const btnOverlayResume = document.getElementById('btnOverlayResume');
+if (btnOverlayResume) {
+  btnOverlayResume.addEventListener('click', function() {
+    STATE.status = 'active';
+    saveSession();
+    document.getElementById('pauseOverlay').classList.remove('active');
+    startTimerLoop();
+    updateAdminDashboardData();
+  });
+}
+
+// OVERLAY OPEN COORDINATOR DASHBOARD
+const btnOverlayAdminPanel = document.getElementById('btnOverlayAdminPanel');
+if (btnOverlayAdminPanel) {
+  btnOverlayAdminPanel.addEventListener('click', function() {
+    openModal('modalAdminLogin');
+  });
+}
+
 // ADMIN PAUSE TEST
 document.getElementById('admBtnPause').addEventListener('click', function() {
   STATE.status = 'paused';
@@ -1104,11 +1236,12 @@ document.getElementById('admBtnPause').addEventListener('click', function() {
   updateAdminDashboardData();
 });
 
-// ADMIN RESUME TEST
+// ADMIN RESUME TEST (NO PASSWORD REQUIRED)
 document.getElementById('admBtnResume').addEventListener('click', function() {
   STATE.status = 'active';
   saveSession();
   document.getElementById('pauseOverlay').classList.remove('active');
+  startTimerLoop();
   updateAdminDashboardData();
 });
 
@@ -1294,3 +1427,6 @@ window.addEventListener('DOMContentLoaded', () => {
     switchView('viewRegistration');
   }
 });
+
+// Guarantee session persistence on window close/refresh
+window.addEventListener('beforeunload', saveSession);
