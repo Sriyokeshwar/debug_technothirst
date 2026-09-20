@@ -20,8 +20,19 @@ const TOTAL_TIME = 3600;       // 60 minutes in seconds
 const EARLY_EXIT_TIME = 2700;  // 45 minutes in seconds
 const GUIDELINE_UNLOCK_TIME = 15; // 15 seconds
 
-const STORAGE_KEY = 'technothirst26_semifinal_session';
 const ROSTER_KEY = 'technothirst26_participants_roster';
+const ACTIVE_USER_KEY = 'technothirst26_active_user_id';
+const LEGACY_STORAGE_KEYS = [
+  'technothirst26_semifinal_session',
+  'debugTestState',
+  'testState',
+  'answers',
+  'correctedCode',
+  'verifiedQuestions',
+  'questionStates',
+  'testProgress',
+  'currentQuestion'
+];
 
 // SHA-256 hash of coordinator authorization key
 const ADMIN_HASH = 'a09d95f1dd880973ce4ca0c15646ebdbe428d5093aa9d7882a7395e025fafd1c';
@@ -133,54 +144,172 @@ print(f"Revenue: {total_rev:.2f}, Tier3: {tier3_cnt}, Top: Room {top_room}")`
 ];
 
 /* ==========================================================================
-   2. APPLICATION STATE MANAGEMENT
+   2. USER-SPECIFIC ISOLATED STATE MANAGEMENT
+   - Every participant has an independent test session: debugTestState_<USER_ID>
+   - Completely isolates answers, verification, timers, and question status
+   - No global data leakage between users
    ========================================================================== */
-const STATE = {
-  view: 'registration', // 'registration', 'rules', 'countdown', 'workspace', 'results'
-  status: 'active',     // 'active', 'paused', 'completed', 'force_quit', 'time_expired', 'cancelled'
-  
-  student: {
-    name: '',
-    rollNo: '',
-    degree: '',
-    department: '',
-    college: 'A.V.C. College of Engineering (Autonomous)'
-  },
 
-  currentQIndex: 0,
-  solved: [false, false, false, false],
-  skipped: [false, false, false, false],
-  draftCodes: ['', '', '', ''],
-  errorsFixed: [0, 0, 0, 0],
-  elapsedSeconds: 0,
-  qTimes: [0, 0, 0, 0],
-  earlyExitUnlocked: false
-};
+function normalizeUserId(rawId) {
+  if (!rawId) return '';
+  return String(rawId).trim().toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+}
 
-function saveSession() {
+function getCurrentUserId() {
+  if (STATE && STATE.student && STATE.student.rollNo) {
+    const id = normalizeUserId(STATE.student.rollNo);
+    if (id) return id;
+  }
+  const activeUser = sessionStorage.getItem(ACTIVE_USER_KEY) || localStorage.getItem(ACTIVE_USER_KEY);
+  if (activeUser) {
+    return normalizeUserId(activeUser);
+  }
+  return null;
+}
+
+function getUserStorageKey(userId) {
+  const id = normalizeUserId(userId || getCurrentUserId());
+  return id ? `debugTestState_${id}` : null;
+}
+
+function cleanupLegacyGlobalData() {
+  LEGACY_STORAGE_KEYS.forEach(key => {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {}
+  });
+}
+
+function createFreshUserState(studentInfo) {
+  const normId = normalizeUserId(studentInfo?.rollNo || '');
+  return {
+    userId: normId,
+    student: {
+      name: studentInfo?.name || '',
+      rollNo: studentInfo?.rollNo || '',
+      degree: studentInfo?.degree || '',
+      department: studentInfo?.department || '',
+      college: studentInfo?.college || 'A.V.C. College of Engineering (Autonomous)'
+    },
+    view: 'rules',
+    status: 'active',
+    completed: false,
+    currentQuestion: 0,
+    currentQIndex: 0,
+    solved: [false, false, false, false],
+    solvedQuestions: [false, false, false, false],
+    verifiedQuestions: {
+      semi_q1: false,
+      semi_q2: false,
+      semi_q3: false,
+      semi_q4: false
+    },
+    skipped: [false, false, false, false],
+    skippedQuestions: [false, false, false, false],
+    draftCodes: ['', '', '', ''],
+    pastedCode: {
+      semi_q1: '',
+      semi_q2: '',
+      semi_q3: '',
+      semi_q4: ''
+    },
+    correctedCode: {
+      semi_q1: '',
+      semi_q2: '',
+      semi_q3: '',
+      semi_q4: ''
+    },
+    outputVerified: {
+      semi_q1: false,
+      semi_q2: false,
+      semi_q3: false,
+      semi_q4: false
+    },
+    questionStates: {
+      semi_q1: { verified: false, errorsFixed: 0, timeTaken: 0 },
+      semi_q2: { verified: false, errorsFixed: 0, timeTaken: 0 },
+      semi_q3: { verified: false, errorsFixed: 0, timeTaken: 0 },
+      semi_q4: { verified: false, errorsFixed: 0, timeTaken: 0 }
+    },
+    errorsFixed: [0, 0, 0, 0],
+    elapsedSeconds: 0,
+    qTimes: [0, 0, 0, 0],
+    earlyExitUnlocked: false,
+    testStartedAt: Date.now()
+  };
+}
+
+const STATE = createFreshUserState(null);
+
+function resetInMemoryState() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  const clean = createFreshUserState(null);
+  clean.view = 'registration';
+  Object.keys(STATE).forEach(k => delete STATE[k]);
+  Object.assign(STATE, clean);
+}
+
+function saveUserState(customState) {
+  const s = customState || STATE;
+  const userId = normalizeUserId(s?.student?.rollNo || getCurrentUserId());
+  if (!userId) return;
+
+  const storageKey = getUserStorageKey(userId);
+  if (!storageKey) return;
+
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+    localStorage.setItem(storageKey, JSON.stringify(s));
+    sessionStorage.setItem(ACTIVE_USER_KEY, userId);
+    localStorage.setItem(ACTIVE_USER_KEY, userId);
   } catch (e) {
-    console.error('Session persistence failed:', e);
+    console.error('Failed to save user test state:', e);
   }
 }
 
-function loadSession() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw) {
-    try {
+function saveSession() {
+  saveUserState(STATE);
+}
+
+function loadUserSpecificState(userId) {
+  const normId = normalizeUserId(userId || getCurrentUserId());
+  if (!normId) return null;
+
+  const storageKey = getUserStorageKey(normId);
+  if (!storageKey) return null;
+
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (raw) {
       const parsed = JSON.parse(raw);
-      Object.assign(STATE, parsed);
-      if (!Array.isArray(STATE.draftCodes) || STATE.draftCodes.length !== QUESTIONS_COUNT) {
-        STATE.draftCodes = ['', '', '', ''];
+      // Validate state ownership
+      if (normalizeUserId(parsed?.student?.rollNo) === normId) {
+        return parsed;
       }
-      if (!Array.isArray(STATE.skipped) || STATE.skipped.length !== QUESTIONS_COUNT) {
-        STATE.skipped = [false, false, false, false];
-      }
-      return true;
-    } catch (e) {
-      console.error('Session parsing failed:', e);
     }
+  } catch (e) {
+    console.error('Failed to parse user test state:', e);
+  }
+  return null;
+}
+
+function loadSession() {
+  const userId = getCurrentUserId();
+  if (!userId) return false;
+
+  const userState = loadUserSpecificState(userId);
+  if (userState && userState.student && userState.student.rollNo) {
+    resetInMemoryState();
+    Object.assign(STATE, userState);
+    if (!Array.isArray(STATE.draftCodes) || STATE.draftCodes.length !== QUESTIONS_COUNT) {
+      STATE.draftCodes = ['', '', '', ''];
+    }
+    if (!Array.isArray(STATE.skipped) || STATE.skipped.length !== QUESTIONS_COUNT) {
+      STATE.skipped = [false, false, false, false];
+    }
+    return true;
   }
   return false;
 }
@@ -206,7 +335,7 @@ function archiveCurrentParticipant() {
   if (!STATE.student || !STATE.student.name || !STATE.student.rollNo) return;
 
   const roster = getParticipantsRoster();
-  const existingIdx = roster.findIndex(p => p.rollNo === STATE.student.rollNo);
+  const existingIdx = roster.findIndex(p => normalizeUserId(p.rollNo) === normalizeUserId(STATE.student.rollNo));
 
   const entry = {
     id: Date.now(),
@@ -236,23 +365,12 @@ function archiveCurrentParticipant() {
 function resetToNewParticipant() {
   archiveCurrentParticipant();
 
-  STATE.view = 'registration';
-  STATE.status = 'active';
-  STATE.student = {
-    name: '',
-    rollNo: '',
-    degree: '',
-    department: '',
-    college: 'A.V.C. College of Engineering (Autonomous)'
-  };
-  STATE.currentQIndex = 0;
-  STATE.solved = [false, false, false, false];
-  STATE.errorsFixed = [0, 0, 0, 0];
-  STATE.elapsedSeconds = 0;
-  STATE.qTimes = [0, 0, 0, 0];
-  STATE.earlyExitUnlocked = false;
+  // Clear active user session reference
+  sessionStorage.removeItem(ACTIVE_USER_KEY);
+  localStorage.removeItem(ACTIVE_USER_KEY);
 
-  saveSession();
+  // Clear in-memory state completely
+  resetInMemoryState();
 
   // Reset form inputs
   document.getElementById('regStudentName').value = '';
@@ -264,6 +382,11 @@ function resetToNewParticipant() {
   deptInput.placeholder = 'Select your degree first';
   document.getElementById('chkGuidelines').checked = false;
   document.getElementById('btnStartDebug').disabled = true;
+
+  // Clear editor textarea and verification feedback in DOM
+  const editor = document.getElementById('txtCorrectedCode');
+  if (editor) editor.value = '';
+  hideVerificationStatus();
 
   switchView('viewRegistration');
 }
@@ -315,11 +438,45 @@ document.getElementById('formRegistration').addEventListener('submit', function(
 
   if (!valid) return;
 
-  STATE.student = { name, rollNo: roll, degree: deg, department: dept, college: col };
+  const normId = normalizeUserId(roll);
+
+  // Set active user references
+  sessionStorage.setItem(ACTIVE_USER_KEY, normId);
+  localStorage.setItem(ACTIVE_USER_KEY, normId);
+
+  // Check if this specific user already has an isolated state saved
+  const existingUserState = loadUserSpecificState(normId);
+
+  if (existingUserState) {
+    // Returning user: load ONLY their state
+    resetInMemoryState();
+    Object.assign(STATE, existingUserState);
+    STATE.student = { name, rollNo: roll, degree: deg, department: dept, college: col };
+  } else {
+    // Brand new user: initialize a 100% clean test state!
+    resetInMemoryState();
+    const freshState = createFreshUserState({ name, rollNo: roll, degree: deg, department: dept, college: col });
+    Object.assign(STATE, freshState);
+  }
+
   saveSession();
 
-  switchView('viewRules');
-  initGuidelineTimer();
+  // Clear any existing textarea value in the DOM
+  const editor = document.getElementById('txtCorrectedCode');
+  if (editor) editor.value = '';
+  hideVerificationStatus();
+
+  // Route user
+  if (STATE.completed || STATE.status === 'completed' || STATE.status === 'force_quit' || STATE.status === 'time_expired' || STATE.status === 'cancelled') {
+    showResultsView();
+  } else if (STATE.view === 'viewWorkspace') {
+    switchView('viewWorkspace');
+    renderWorkspace();
+    startTimerLoop();
+  } else {
+    switchView('viewRules');
+    initGuidelineTimer();
+  }
 });
 
 /* ==========================================================================
@@ -535,7 +692,13 @@ function getNextUnsolvedIndex(fromIndex) {
 function saveCurrentDraft() {
   const editor = document.getElementById('txtCorrectedCode');
   if (editor && STATE.currentQIndex >= 0 && STATE.currentQIndex < QUESTIONS_COUNT) {
-    STATE.draftCodes[STATE.currentQIndex] = editor.value;
+    const code = editor.value;
+    const qId = COMPETITION_QUESTIONS[STATE.currentQIndex].id;
+    STATE.draftCodes[STATE.currentQIndex] = code;
+    if (!STATE.pastedCode) STATE.pastedCode = {};
+    if (!STATE.correctedCode) STATE.correctedCode = {};
+    STATE.pastedCode[qId] = code;
+    STATE.correctedCode[qId] = code;
   }
 }
 
@@ -845,10 +1008,23 @@ function verifySubmittedCode(qData, userCode) {
 
 // VERIFY CODE BUTTON CLICK
 document.getElementById('btnVerifyCode').addEventListener('click', function() {
+  const userId = getCurrentUserId();
+  if (!userId) {
+    alert('No active participant session found. Please register first.');
+    resetToNewParticipant();
+    return;
+  }
+
   const qIdx = STATE.currentQIndex;
   const qData = COMPETITION_QUESTIONS[qIdx];
   const userCode = document.getElementById('txtCorrectedCode').value;
+
+  // Save code under THIS USER'S state
   STATE.draftCodes[qIdx] = userCode;
+  if (!STATE.pastedCode) STATE.pastedCode = {};
+  if (!STATE.correctedCode) STATE.correctedCode = {};
+  STATE.pastedCode[qData.id] = userCode;
+  STATE.correctedCode[qData.id] = userCode;
 
   const result = verifySubmittedCode(qData, userCode);
 
@@ -856,10 +1032,19 @@ document.getElementById('btnVerifyCode').addEventListener('click', function() {
     // Green theme color banner: VERIFIED
     showVerificationStatus(true, '✓ VERIFIED: Question verified successfully. All 5 intentional errors resolved.');
     STATE.solved[qIdx] = true;
+    if (!STATE.solvedQuestions) STATE.solvedQuestions = [false, false, false, false];
+    STATE.solvedQuestions[qIdx] = true;
+    if (!STATE.verifiedQuestions) STATE.verifiedQuestions = {};
+    STATE.verifiedQuestions[qData.id] = true;
+    if (!STATE.outputVerified) STATE.outputVerified = {};
+    STATE.outputVerified[qData.id] = true;
     STATE.errorsFixed[qIdx] = 5;
+    if (!STATE.questionStates) STATE.questionStates = {};
+    STATE.questionStates[qData.id] = { verified: true, errorsFixed: 5, timeTaken: STATE.qTimes[qIdx] };
 
     const allSolved = STATE.solved.every(s => s === true);
     if (allSolved) {
+      STATE.completed = true;
       document.getElementById('btnFinishTest').style.display = 'inline-flex';
       document.getElementById('btnFinishTest').disabled = false;
       document.getElementById('btnNextQuestion').style.display = 'none';
@@ -874,6 +1059,8 @@ document.getElementById('btnVerifyCode').addEventListener('click', function() {
     showVerificationStatus(false, `✖ UNVERIFIED: Question is not verified (${result.errorsSolved}/5 errors resolved). Please check logic and retry, or skip.`);
     if (!STATE.solved[qIdx]) {
       STATE.errorsFixed[qIdx] = result.errorsSolved;
+      if (!STATE.questionStates) STATE.questionStates = {};
+      STATE.questionStates[qData.id] = { verified: false, errorsFixed: result.errorsSolved, timeTaken: STATE.qTimes[qIdx] };
     }
     // Clicking verify automatically allows moving to next question / skipping
     document.getElementById('btnNextQuestion').disabled = false;
@@ -1397,36 +1584,58 @@ function animateConfetti() {
 }
 
 /* ==========================================================================
-   15. INITIALIZATION ON DOM READY
+   15. INITIALIZATION ON DOM READY (ISOLATED INITIALIZATION SEQUENCE)
+   initCurrentUser()
+   → createUserSpecificStorageKey()
+   → loadUserSpecificState()
+   → validateStateOwnership()
+   → initializeFreshStateIfNeeded()
+   → renderQuestion()
+   → renderProgress()
+   → renderTimer()
    ========================================================================== */
 window.addEventListener('DOMContentLoaded', () => {
   initConfettiCanvas();
-  const hasSaved = loadSession();
+  cleanupLegacyGlobalData();
 
-  if (hasSaved && STATE.student && STATE.student.name && STATE.student.rollNo) {
-    // If test was paused by admin, keep paused overlay active
-    if (STATE.status === 'paused') {
-      document.getElementById('pauseOverlay').classList.add('active');
-    }
+  // 1. Identify active user
+  const activeUserId = getCurrentUserId();
 
-    if (STATE.view === 'viewResults' || STATE.status === 'completed' || STATE.status === 'force_quit' || STATE.status === 'time_expired' || STATE.status === 'cancelled') {
-      showResultsView();
-    } else if (STATE.view === 'viewWorkspace') {
-      switchView('viewWorkspace');
-      renderWorkspace();
-      if (STATE.status === 'active') {
-        startTimerLoop();
+  if (activeUserId) {
+    // 2. Load user-specific state & validate ownership
+    const userState = loadUserSpecificState(activeUserId);
+
+    if (userState && userState.student && userState.student.rollNo) {
+      resetInMemoryState();
+      Object.assign(STATE, userState);
+
+      // If test was paused by admin, keep paused overlay active
+      if (STATE.status === 'paused') {
+        document.getElementById('pauseOverlay').classList.add('active');
       }
-    } else if (STATE.view === 'viewRules') {
-      switchView('viewRules');
-      initGuidelineTimer();
-    } else {
-      switchView('viewRegistration');
+
+      if (STATE.completed || STATE.view === 'viewResults' || STATE.status === 'completed' || STATE.status === 'force_quit' || STATE.status === 'time_expired' || STATE.status === 'cancelled') {
+        showResultsView();
+      } else if (STATE.view === 'viewWorkspace') {
+        switchView('viewWorkspace');
+        renderWorkspace();
+        if (STATE.status === 'active') {
+          startTimerLoop();
+        }
+      } else if (STATE.view === 'viewRules') {
+        switchView('viewRules');
+        initGuidelineTimer();
+      } else {
+        switchView('viewRegistration');
+      }
+      return;
     }
-  } else {
-    switchView('viewRegistration');
   }
+
+  // 3. If no active user or invalid ownership, start clean
+  resetInMemoryState();
+  switchView('viewRegistration');
 });
 
-// Guarantee session persistence on window close/refresh
+// Guarantee session persistence on window close/refresh for current user
 window.addEventListener('beforeunload', saveSession);
