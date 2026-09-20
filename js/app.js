@@ -360,6 +360,17 @@ function archiveCurrentParticipant() {
   }
 
   saveParticipantsRoster(roster);
+  updateCachedCountUI();
+}
+
+function updateCachedCountUI() {
+  try {
+    const badge = document.getElementById('regCachedCount');
+    if (badge) {
+      const roster = getParticipantsRoster();
+      badge.textContent = roster.length;
+    }
+  } catch (e) {}
 }
 
 function resetToNewParticipant() {
@@ -388,6 +399,7 @@ function resetToNewParticipant() {
   if (editor) editor.value = '';
   hideVerificationStatus();
 
+  updateCachedCountUI();
   switchView('viewRegistration');
 }
 
@@ -1504,6 +1516,9 @@ function switchView(viewId) {
   document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active'));
   const target = document.getElementById(viewId);
   if (target) target.classList.add('active');
+  if (viewId === 'viewRegistration') {
+    updateCachedCountUI();
+  }
   saveSession();
 }
 
