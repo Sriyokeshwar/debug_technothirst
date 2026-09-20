@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python Debugging Championship — Technothirst’26 | AVCCE MCA</title>
+  <title>Python Debugging Tournament — Technothirst’26 | AVCCE MCA</title>
   <!-- Technothirst’26 Light Tech Theme Stylesheet -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -19,14 +19,14 @@
       </div>
       <div id="navStageBadge" class="nav-stage-badge">
         <span class="pulse-dot"></span>
-        <span id="navStageText">Registration</span>
+        <span id="navStageText">SEMI-FINAL</span>
       </div>
     </div>
 
     <!-- Question Indicator (Q1 - Q4) -->
     <div id="navCenterProgress" class="nav-center-progress">
       <div class="q-step-indicator" id="qStepPills">
-        <!-- Rendered dynamically -->
+        <!-- Rendered dynamically for exactly 4 questions -->
       </div>
     </div>
 
@@ -71,9 +71,10 @@
             <div class="reg-form-error" id="errRollNo">Register number is required.</div>
           </div>
 
+          <!-- DEGREE DROPDOWN (11 SPECIFIED DEGREES) -->
           <div class="reg-form-group">
             <label for="regDegree">Degree <span class="req">*</span></label>
-            <select id="regDegree" class="reg-form-select" required>
+            <select id="regDegree" name="degree" class="reg-form-select" required>
               <option value="" disabled selected>Select Degree...</option>
               <option value="B.Sc Computer Science">B.Sc Computer Science</option>
               <option value="BCA">BCA</option>
@@ -83,22 +84,23 @@
               <option value="B.Sc Information Technology">B.Sc Information Technology</option>
               <option value="B.Sc Artificial Intelligence">B.Sc Artificial Intelligence</option>
               <option value="M.Sc Computer Science">M.Sc Computer Science</option>
-              <option value="MCA" selected>MCA</option>
+              <option value="MCA">MCA</option>
               <option value="M.E Computer Science and Engineering">M.E Computer Science and Engineering</option>
               <option value="M.Tech Information Technology">M.Tech Information Technology</option>
             </select>
             <div class="reg-form-error" id="errDegree">Please select your registered degree.</div>
           </div>
 
+          <!-- DEPARTMENT MANUAL TEXT INPUT (ENABLED ONLY AFTER DEGREE SELECTION) -->
           <div class="reg-form-group">
-            <label for="regDepartment">Department <span class="req">*</span></label>
-            <input type="text" id="regDepartment" class="reg-form-input" placeholder="Computer Applications" value="Computer Applications" required>
+            <label for="regDepartment">Department / Specialization <span class="req">*</span></label>
+            <input type="text" id="regDepartment" name="department" class="reg-form-input" placeholder="Select your degree first" disabled required>
             <div class="reg-form-error" id="errDepartment">Department is required.</div>
           </div>
 
           <div class="reg-form-group">
             <label for="regCollege">College / Institution Name <span class="req">*</span></label>
-            <input type="text" id="regCollege" class="reg-form-input" placeholder="A.V.C. College of Engineering (AVCCE)" value="A.V.C. College of Engineering (AVCCE)" required>
+            <input type="text" id="regCollege" class="reg-form-input" placeholder="A.V.C. College of Engineering (Autonomous)" value="A.V.C. College of Engineering (Autonomous)" required>
             <div class="reg-form-error" id="errCollege">College name is required.</div>
           </div>
 
@@ -113,75 +115,96 @@
       </div>
     </section>
 
-    <!-- VIEW 2: RULES & GUIDELINE LOCK -->
+    <!-- VIEW 2: RULES & GUIDELINE LOCK (15 SECONDS) -->
     <section id="viewRules" class="view-screen">
       <div class="rules-wrapper">
         <div class="rules-header">
           <div style="display: flex; justify-content: center; margin-bottom: 12px;">
             <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE Logo" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent-color);">
           </div>
-          <h2>Tournament Guidelines</h2>
-          <p>Read the official competition rules below. The agreement checkbox will unlock after 15 seconds.</p>
+          <h2>TOURNAMENT GUIDELINES</h2>
+          <p id="guidelineHeaderNotice">Read the official competition rules below. The agreement checkbox will unlock after 15 seconds.</p>
         </div>
 
         <div class="rules-accordion">
+          <!-- CARD 1 -->
           <div class="acc-card open">
             <div class="acc-header" onclick="toggleAccordion(this)">
-              <div class="acc-title"><span class="acc-num">1</span> Semi-Final Structure</div>
+              <div class="acc-title"><span class="acc-num">1</span> SEMI-FINAL STRUCTURE</div>
               <span class="acc-toggle-icon">▼</span>
             </div>
             <div class="acc-body">
-              The Semi-Final contains <strong>exactly 4 questions</strong> (NOT 5). Each question has <strong>exactly 5 intentional errors</strong> (20 errors total).
+              The Semi-Final contains <strong>EXACTLY 4 questions</strong>. Each question contains <strong>EXACTLY 5 intentional errors</strong>.<br>
+              Total: <strong>4 Questions × 5 Errors = 20 Errors</strong>.<br>
+              <em>IMPORTANT: EXACTLY 4 QUESTIONS &bull; 5 ERRORS PER QUESTION &bull; 20 TOTAL ERRORS &bull; NO QUESTION 5</em>.
             </div>
           </div>
 
+          <!-- CARD 2 -->
           <div class="acc-card">
             <div class="acc-header" onclick="toggleAccordion(this)">
-              <div class="acc-title"><span class="acc-num">2</span> Python 3 Fundamentals Only</div>
+              <div class="acc-title"><span class="acc-num">2</span> PROGRAMMING LANGUAGE</div>
               <span class="acc-toggle-icon">▼</span>
             </div>
             <div class="acc-body">
-              Standard Python 3 only: variables, lists, nested lists/matrices, loops, conditionals, accumulators, and functions. No external packages (NumPy/Pandas) required.
+              The debugging questions use <strong>Python 3</strong>. Only standard Python 3 concepts are required:
+              Variables, Lists, Nested Lists / Matrices, Loops, Conditional Statements, Accumulators, Functions, and basic operators.
+              No external packages are required. <strong>NumPy and Pandas are NOT required</strong>.
             </div>
           </div>
 
+          <!-- CARD 3 -->
           <div class="acc-card">
             <div class="acc-header" onclick="toggleAccordion(this)">
-              <div class="acc-title"><span class="acc-num">3</span> IDE Debugging Workflow</div>
+              <div class="acc-title"><span class="acc-num">3</span> DEBUGGING PROCESS</div>
               <span class="acc-toggle-icon">▼</span>
             </div>
             <div class="acc-body">
-              Click <strong>[ COPY CODE ]</strong> on the left, paste into your local Python IDE, debug and run, then paste your corrected code into the right panel and click <strong>[ VERIFY CODE ]</strong>.
+              1. Click <strong>[ COPY CODE ]</strong> on the left.<br>
+              2. Paste the code into your local Python IDE.<br>
+              3. Debug the program and fix the intentional errors.<br>
+              4. Run the corrected program locally.<br>
+              5. Copy your corrected code.<br>
+              6. Paste it into the right panel.<br>
+              7. Click <strong>[ VERIFY CODE ]</strong>.
             </div>
           </div>
 
+          <!-- CARD 4 -->
           <div class="acc-card">
             <div class="acc-header" onclick="toggleAccordion(this)">
-              <div class="acc-title"><span class="acc-num">4</span> Verification & Navigation Rule</div>
+              <div class="acc-title"><span class="acc-num">4</span> VERIFICATION</div>
               <span class="acc-toggle-icon">▼</span>
             </div>
             <div class="acc-body">
-              Clicking <strong>[ VERIFY CODE ]</strong> evaluates your code (showing green for success or red for unverified). Clicking verify automatically unlocks the <strong>[ NEXT QUESTION ]</strong> button so you can proceed at any time. You can also skip or retry.
+              Correct code: <strong>GREEN / VERIFIED</strong>.<br>
+              Incorrect code: <strong>RED / UNVERIFIED</strong> (allows editing and retry).<br>
+              Successful verification unlocks <strong>[ NEXT QUESTION ]</strong>.
             </div>
           </div>
 
+          <!-- CARD 5 -->
           <div class="acc-card">
             <div class="acc-header" onclick="toggleAccordion(this)">
-              <div class="acc-title"><span class="acc-num">5</span> Timing & Early-Exit Threshold</div>
+              <div class="acc-title"><span class="acc-num">5</span> TEST COMPLETION</div>
               <span class="acc-toggle-icon">▼</span>
             </div>
             <div class="acc-body">
-              Total Semi-Final time is <strong>60 minutes</strong>. Early exit becomes available after <strong>45 minutes</strong> (or immediately if all 4 questions are solved). Hard stop at 60:00.
+              There are exactly 4 questions.<br>
+              <strong>Before 45 minutes:</strong> You can finish ONLY after solving all 4 questions.<br>
+              <strong>After 45 minutes:</strong> <strong>[ FORCE QUIT ]</strong> becomes available.<br>
+              <strong>At 60 minutes:</strong> The test automatically ends.
             </div>
           </div>
 
+          <!-- CARD 6 -->
           <div class="acc-card">
             <div class="acc-header" onclick="toggleAccordion(this)">
-              <div class="acc-title"><span class="acc-num">6</span> Multi-Participant Support</div>
+              <div class="acc-title"><span class="acc-num">6</span> FINAL RULE</div>
               <span class="acc-toggle-icon">▼</span>
             </div>
             <div class="acc-body">
-              After finishing the test, coordinators or candidates can click <strong>[ + REGISTER ANOTHER PARTICIPANT ]</strong> to safely archive current results and initialize a fresh test session for the next student.
+              The participant must not be allowed to finish normally before solving all four questions.
             </div>
           </div>
         </div>
@@ -195,7 +218,7 @@
             </label>
           </div>
           <button id="btnStartDebug" class="btn btn-primary" disabled style="min-width: 220px;">
-            START DEBUG →
+            START SEMI-FINAL →
           </button>
         </div>
       </div>
@@ -226,7 +249,7 @@
           </div>
         </div>
 
-        <!-- TWO-COLUMN WORKSPACE: LEFT (Question + Buggy Code) | RIGHT (Paste Area + Verify) -->
+        <!-- TWO-COLUMN WORKSPACE -->
         <div class="workspace-columns">
           
           <!-- LEFT COLUMN: 2-LINE QUESTION + BUGGY CODE VIEWER -->
@@ -248,6 +271,7 @@
                   COPY CODE
                 </button>
               </div>
+
               <div id="codeViewerBody" class="code-viewer-body">
                 <!-- Injected with line numbers -->
               </div>
@@ -282,15 +306,11 @@
                     VERIFY CODE
                   </button>
 
-                  <button id="btnSkipQuestion" class="btn btn-secondary">
-                    SKIP QUESTION ↷
-                  </button>
-
                   <button id="btnNextQuestion" class="btn btn-success" disabled>
                     NEXT QUESTION →
                   </button>
 
-                  <button id="btnFinishTest" class="btn btn-gold" style="display: none;">
+                  <button id="btnFinishTest" class="btn btn-gold" style="display: none;" disabled>
                     FINISH TEST ✓
                   </button>
                 </div>
@@ -312,7 +332,8 @@
             💡 <strong>External IDE Workflow:</strong> Run code in your local Python 3 interpreter, debug the 5 errors, and paste the fixed script back.
           </div>
           <div style="display: flex; gap: 10px;">
-            <button id="btnForceQuit" class="btn btn-danger">
+            <!-- FORCE QUIT BUTTON (DISABLED BEFORE 45:00, ENABLED AT 45:00) -->
+            <button id="btnForceQuit" class="btn btn-danger" disabled title="Force quit unlocks after 45 minutes">
               FORCE QUIT
             </button>
           </div>
@@ -356,7 +377,7 @@
         </div>
 
         <!-- Scorecards Grid -->
-        <div class="result-scorecards-grid">
+        <div class="result-scorecards-grid" style="grid-template-columns: 1fr;">
           <div class="scorecard highlight">
             <div class="scorecard-header">
               <span>Semi-Final Performance</span>
@@ -379,33 +400,10 @@
               <span class="score-metric-value" id="resSemiStatus">Completed</span>
             </div>
           </div>
-
-          <div class="scorecard" id="cardFinalResult" style="opacity: 0.55;">
-            <div class="scorecard-header">
-              <span>Final Test Performance</span>
-              <span id="resFinalBadge" class="score-badge info">Not Activated</span>
-            </div>
-            <div class="score-metric-row">
-              <span class="score-metric-label">Questions Solved</span>
-              <span class="score-metric-value" id="resFinalQuestions">-- / 2</span>
-            </div>
-            <div class="score-metric-row">
-              <span class="score-metric-label">Errors Solved</span>
-              <span class="score-metric-value" id="resFinalErrors">-- / 10</span>
-            </div>
-            <div class="score-metric-row">
-              <span class="score-metric-label">Final Test Duration</span>
-              <span class="score-metric-value" id="resFinalTime">--</span>
-            </div>
-            <div class="score-metric-row">
-              <span class="score-metric-label">Status</span>
-              <span class="score-metric-value" id="resFinalStatus">Awaiting Coordinator</span>
-            </div>
-          </div>
         </div>
 
         <h3 style="font-family: var(--heading-font); font-size: 16px; margin-bottom: 12px; color: var(--primary-color);">
-          Question-by-Question Audit Breakdown
+          Question-by-Question Audit Breakdown (Exactly 4 Questions)
         </h3>
         <table class="result-timing-table">
           <thead>
@@ -414,28 +412,20 @@
               <th>Difficulty</th>
               <th>Status</th>
               <th>Time Consumed</th>
+              <th>Errors Solved</th>
             </tr>
           </thead>
           <tbody id="resTimingTableBody">
-            <!-- Injected via JS -->
+            <!-- Injected via JS: strictly Q1, Q2, Q3, Q4 -->
           </tbody>
         </table>
 
-        <!-- Final Test Activation Alert -->
-        <div id="finalReadyBanner" style="display: none; background: #FEF3C7; border: 1px solid #FCD34D; border-radius: var(--radius-md); padding: 18px; text-align: center; margin-bottom: 24px;">
-          <h4 style="color: #92400E; font-size: 16px; font-weight: 800; margin-bottom: 6px;">⚡ FINAL TEST ACTIVATED BY COORDINATOR</h4>
-          <p style="color: #78350F; font-size: 14px; margin-bottom: 14px;">The administrator has authorized your participation in Stage 2 (2 Questions, 10 Minutes).</p>
-          <button id="btnEnterFinalTest" class="btn btn-gold" style="padding: 10px 24px;">
-            ENTER FINAL TEST NOW →
-          </button>
-        </div>
-
         <!-- Result Export & Multi-Participant Action Buttons -->
         <div class="result-actions-group">
-          <!-- Add another participant button as requested -->
+          <!-- REGISTER ANOTHER PARTICIPANT BUTTON -->
           <button id="btnAddAnotherParticipant" class="btn btn-primary" style="background: linear-gradient(135deg, #075985, #06B6D4);">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-            + ADD ANOTHER PARTICIPANT
+            + REGISTER ANOTHER PARTICIPANT
           </button>
 
           <button id="btnDownloadTxt" class="btn btn-secondary">
@@ -470,7 +460,7 @@
   </footer>
 
   <!-- ==========================================================================
-       MODALS: ADMIN LOGIN, ADMIN DASHBOARD (WITH PARTICIPANTS CACHE ROSTER)
+       MODALS: ADMIN LOGIN, FORCE QUIT CONFIRMATION, ADMIN DASHBOARD
        ========================================================================== -->
 
   <!-- ADMIN LOGIN MODAL -->
@@ -487,20 +477,39 @@
         <div class="reg-form-group">
           <label for="txtAdminPassword">Admin Password</label>
           <input type="password" id="txtAdminPassword" class="reg-form-input" placeholder="••••••••" autocomplete="off">
-          <div id="errAdminPassword" class="reg-form-error">Incorrect administrative password.</div>
+          <div id="errAdminPassword" class="reg-form-error">Invalid administrator password.</div>
         </div>
-        <p style="font-size: 11.5px; color: var(--text-secondary); margin-top: 8px;">
-          🔒 Web Crypto PBKDF2 (SHA-256). Default key: <code>Admin@Debug2026</code>
-        </p>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('modalAdminLogin')">Cancel</button>
-        <button id="btnAdminSubmitLogin" class="btn btn-primary">Login to Dashboard</button>
+        <button class="btn btn-secondary" onclick="closeModal('modalAdminLogin')">CANCEL</button>
+        <button id="btnAdminSubmitLogin" class="btn btn-primary">LOGIN TO DASHBOARD</button>
       </div>
     </div>
   </div>
 
-  <!-- ADMIN DASHBOARD MODAL WITH PARTICIPANTS CACHE ROSTER -->
+  <!-- FORCE QUIT CONFIRMATION MODAL -->
+  <div id="modalForceQuitConfirm" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Are you sure you want to force quit the Semi-Final?</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalForceQuitConfirm')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 14px; color: var(--text-primary); line-height: 1.6; margin-bottom: 12px;">
+          You have not necessarily solved all 4 questions. Force quitting will end your current test session.
+        </p>
+        <p style="font-size: 13px; color: var(--text-secondary);">
+          Your progress up to this moment will be saved and audited. Unanswered questions will remain unsolved.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalForceQuitConfirm')">CANCEL</button>
+        <button id="btnConfirmForceQuit" class="btn btn-danger">FORCE QUIT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD MODAL -->
   <div id="modalAdminDashboard" class="modal-backdrop">
     <div class="modal-card admin-modal-card">
       <div class="modal-header">
@@ -512,11 +521,19 @@
         <!-- Live Telemetry Grid -->
         <div class="admin-dash-grid">
           <div class="admin-stat-card">
-            <div class="label">Current Candidate</div>
+            <div class="label">Current Participant</div>
             <div class="value" id="admCandName" style="font-size: 15px;">--</div>
           </div>
           <div class="admin-stat-card">
-            <div class="label">Stage & Question</div>
+            <div class="label">Registration / Roll No</div>
+            <div class="value" id="admCandRoll" style="font-size: 14px;">--</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Degree & Dept</div>
+            <div class="value" id="admCandDegreeDept" style="font-size: 13px;">--</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Current Question</div>
             <div class="value" id="admQuestion">--</div>
           </div>
           <div class="admin-stat-card">
@@ -524,8 +541,16 @@
             <div class="value" id="admTimeLeft">--</div>
           </div>
           <div class="admin-stat-card">
-            <div class="label">Solved Progress</div>
-            <div class="value" id="admQuestionsSolved">--</div>
+            <div class="label">Questions Solved</div>
+            <div class="value" id="admQuestionsSolved">-- / 4</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Errors Solved</div>
+            <div class="value" id="admErrorsSolved">-- / 20</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Pause State</div>
+            <div class="value" id="admPauseState">Active</div>
           </div>
         </div>
 
@@ -539,9 +564,6 @@
           </button>
           <button id="admBtnForceFinish" class="btn btn-secondary">
             ⏹ FORCE FINISH
-          </button>
-          <button id="admBtnActivateFinal" class="btn btn-gold">
-            ⚡ ACTIVATE FINAL TEST
           </button>
           <button id="admBtnCancel" class="btn btn-danger">
             ✖ CANCEL TEST
@@ -574,6 +596,7 @@
                   <th>Roll No</th>
                   <th>Name</th>
                   <th>Degree</th>
+                  <th>Department</th>
                   <th>Questions</th>
                   <th>Errors</th>
                   <th>Time Taken</th>
@@ -594,33 +617,7 @@
     </div>
   </div>
 
-  <!-- 45-MINUTE EARLY EXIT PROMPT MODAL -->
-  <div id="modal45MinPrompt" class="modal-backdrop">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>45-Minute Mandatory Duration Completed</h3>
-        <button class="modal-close-btn" onclick="closeModal('modal45MinPrompt')">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p style="font-size: 15px; font-weight: 700; color: var(--primary-color); margin-bottom: 8px;">
-          You have reached the 45-minute mark.
-        </p>
-        <p style="color: var(--text-secondary); font-size: 13.5px; line-height: 1.6; margin-bottom: 12px;">
-          You may conclude your test now or continue solving during the remaining <strong>15 minutes</strong> (until 60:00).
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button id="btnPromptForceQuit" class="btn btn-danger">
-          FORCE QUIT (SUBMIT NOW)
-        </button>
-        <button id="btnPromptContinue" class="btn btn-primary">
-          CONTINUE TEST →
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- FULLSCREEN PAUSE SCREEN OVERLAY -->
+  <!-- FULLSCREEN PAUSE SCREEN OVERLAY (NO PARTICIPANT RESUME BUTTON) -->
   <div id="pauseOverlay" class="pause-screen-overlay">
     <div class="pause-icon">⏸</div>
     <h2>TEST PAUSED</h2>
@@ -630,11 +627,7 @@
   <!-- CONFETTI CANVAS -->
   <canvas id="confettiCanvas"></canvas>
 
-  <!-- MODULAR SCRIPTS -->
-  <script src="js/questions.js"></script>
-  <script src="js/security.js"></script>
-  <script src="js/validation.js"></script>
-  <script src="js/confetti.js"></script>
-  <script src="js/app.js"></script>
+  <!-- PURE VANILLA JAVASCRIPT IMPLEMENTATION -->
+  <script src="script.js"></script>
 </body>
 </html>
