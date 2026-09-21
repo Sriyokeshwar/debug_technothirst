@@ -116,16 +116,16 @@ assert(sandbox.EARLY_EXIT_TIME === 2700, `EARLY_EXIT_TIME constant is 2700 (45 m
 assert(sandbox.GUIDELINE_UNLOCK_TIME === 15, `GUIDELINE_UNLOCK_TIME constant is 15 seconds`);
 
 // Verify target outputs match real Python execution
-assert(questions[0].expectedOutput === 'Sales: 2225.00 Tax: 167.02 Top: D', 'Q1 target output is "Sales: 2225.00 Tax: 167.02 Top: D"');
-assert(questions[1].expectedOutput === 'Eligible: 2, Top: Eshan (93.3%)', 'Q2 target output is "Eligible: 2, Top: Eshan (93.3%)"');
-assert(questions[2].expectedOutput === 'Average: 32.78, Hotspots: 4, Peak Column: 2', 'Q3 target output is "Average: 32.78, Hotspots: 4, Peak Column: 2"');
-assert(questions[3].expectedOutput === 'Revenue: 1988.00, Tier3: 1, Top: Room 103', 'Q4 target output is "Revenue: 1988.00, Tier3: 1, Top: Room 103"');
+assert(questions[0].expectedOutput === 'Even: [12, 18, 24]\nAverage: 18.0', 'Q1 target output is "Even: [12, 18, 24]\\nAverage: 18.0"');
+assert(questions[1].expectedOutput === '[15, 20]\nTotal: 35', 'Q2 target output is "[15, 20]\\nTotal: 35"');
+assert(questions[2].expectedOutput === `Count: {'Python': 3, 'Java': 2}\nCommon: ['Python', 'Java']\nJava`, 'Q3 target output is word frequency and common words');
+assert(questions[3].expectedOutput === 'Arun 56.666666666666664 PASS\n1', 'Q4 target output is student average and total');
 
-// Check line counts for Q1-Q3 (8-15 lines) and Q4 (10-18 lines)
+// Check line counts for Q1-Q3 (5-15 lines) and Q4 (10-18 lines)
 for (let i = 0; i < 3; i++) {
   const q = questions[i];
   const lines = q.buggyCode.split('\n').length;
-  assert(lines >= 8 && lines <= 15, `Q${i+1} code line count (${lines}) is between 8 and 15 lines`);
+  assert(lines >= 5 && lines <= 15, `Q${i+1} code line count (${lines}) is between 5 and 15 lines`);
   const promptLines = q.shortPrompt.split('\n').length;
   assert(promptLines <= 2, `Q${i+1} prompt line count (${promptLines}) is <= 2 lines`);
 }
@@ -143,76 +143,54 @@ for (let i = 0; i < 3; i++) {
 console.log('\n--- 4. Code Verification Engine ---');
 
 const solutions = [
-  // Q1 Solution (5 errors fixed)
-  `items = [['B', 6, 40.0], ['L', 4, 80.0], ['D', 8, 120.0], ['B', 3, 50.0], ['L', 10, 75.0]]
-total_sales = 0.0; total_tax = 0.0; max_bill = -1.0; top_cat = ''
+  // Q1 Solution
+  `nums = [12, 15, 18, 21, 24]
+even = [n for n in nums if n % 2 == 0]
+total = sum(even)
+avg = total / len(even)
+print("Even:", even)
+print("Average:", avg)`,
 
-for item in items:
-    cat, qty, price = item[0], item[1], item[2]
-    base = qty * price
-    disc = base * 0.10 if qty > 5 else 0.0
-    sub = base - disc
-    tax_rate = 0.05 if cat == 'B' else 0.08
-    tax = sub * tax_rate; net = sub + tax
-    total_sales += sub; total_tax += tax
-    if net > max_bill:
-        max_bill = net; top_cat = cat
+  // Q2 Solution
+  `def check(numbers, limit=10):
+    result = []
+    for n in numbers:
+        if n > limit:
+            result.append(n)
+    total = sum(result)
+    return result, total
 
-print(f"Sales: {total_sales:.2f} Tax: {total_tax:.2f} Top: {top_cat}")`,
+data = [5, 15, 20, 8]
+values, total = check(data, 10)
+print(values)
+print("Total:", total)`,
 
-  // Q2 Solution (5 errors fixed)
-  `students = [["Aravind", 38, 45, 'N', 78], ["Bhavna", 28, 45, 'Y', 65], ["Eshan", 42, 45, 'N', 92]]
-eligible = 0; max_pct = 0.0; top_student = ""
+  // Q3 Solution
+  `text = "Python Python Java Python Java"
+words = text.split()
+count = {}
+for word in words:
+    count[word] = count.get(word, 0) + 1
+common = [w for w in count if count[w] > 1]
+print("Count:", count)
+print("Common:", common)
+print(common[1])`,
 
-for i in range(len(students)):
-    name, att, total, med, score = students[i]
-    pct = att / total * 100
-    if pct < 75.0 and (pct >= 65.0 and med == 'Y'):
-        pct += 10.0
-    if pct >= 75.0 and score >= 40:
-        eligible += 1
-        if pct > max_pct:
-            max_pct = pct; top_student = name
+  // Q4 Solution
+  `class Student:
+    total = 0
+    def __init__(self, name, marks):
+        self.name = name
+        self.marks = marks
+        Student.total += 1
+    def average(self):
+        return sum(self.marks) / len(self.marks)
+    def result(self):
+        return "PASS" if self.average() >= 50 else "FAIL"
 
-print(f"Eligible: {eligible}, Top: {top_student} ({max_pct:.1f}%)")`,
-
-  // Q3 Solution (5 errors fixed)
-  `grid = [[28.0, 34.0, 31.0], [32.0, 36.0, 38.0], [29.0, 30.0, 37.0]]
-total = 0.0; hotspots = 0; row_avgs = []
-for r in range(len(grid)):
-    row_sum = 0.0
-    for c in range(len(grid[0])):
-        val = grid[r][c]; row_sum += val; total += val
-    row_avgs.append(row_sum / len(grid[0]))
-overall_avg = total / (len(grid) * len(grid[0]))
-for r in range(len(grid)):
-    for c in range(len(grid[0])):
-        if grid[r][c] > row_avgs[r] and grid[r][c] > overall_avg: hotspots += 1
-col_sums = [grid[0][c] + grid[1][c] + grid[2][c] for c in range(3)]
-peak_c = 0; max_c = -1.0
-for c in range(3):
-    if col_sums[c] > max_c: max_c = col_sums[c]; peak_c = c
-print(f"Average: {overall_avg:.2f}, Hotspots: {hotspots}, Peak Column: {peak_c}")`,
-
-  // Q4 Solution (5 errors fixed)
-  `def calc_bill(units, peak):
-    if units <= 100: e = units * 3.0
-    elif units <= 200: e = 300.0 + (units - 100) * 4.5
-    else: e = 300.0 + 450.0 + (units - 200) * 6.0
-    tot = e + peak * 2.0
-    return tot - (tot * 0.05) if units < 80 else tot
-
-rooms = [[101, 70, 15], [102, 160, 40], [103, 240, 60]]
-total_rev = 0.0; tier3_cnt = 0; max_b = -1.0; top_room = 0
-
-for r, u, p in rooms:
-    b = calc_bill(u, p)
-    total_rev += b
-    if u > 200: tier3_cnt += 1
-    if b > max_b:
-        max_b = b; top_room = r
-
-print(f"Revenue: {total_rev:.2f}, Tier3: {tier3_cnt}, Top: Room {top_room}")`
+s = Student("Arun", [60, 70, 40])
+print(s.name, s.average(), s.result())
+print(Student.total)`
 ];
 
 for (let i = 0; i < 4; i++) {

@@ -164,21 +164,12 @@ console.log('--- TEST 1: Brand New User Starts with Clean State ---');
   submitHandler({ preventDefault: () => {} });
 
   // User A enters workspace and solves Q1
-  const solvedQ1Code = `items = [['B', 6, 40.0], ['L', 4, 80.0], ['D', 8, 120.0], ['B', 3, 50.0], ['L', 10, 75.0]]
-total_sales = 0.0; total_tax = 0.0; max_bill = -1.0; top_cat = ''
-
-for item in items:
-    cat, qty, price = item[0], item[1], item[2]
-    base = qty * price
-    disc = base * 0.10 if qty > 5 else 0.0
-    sub = base - disc
-    tax_rate = 0.05 if cat == 'B' else 0.08
-    tax = sub * tax_rate; net = sub + tax
-    total_sales += sub; total_tax += tax
-    if net > max_bill:
-        max_bill = net; top_cat = cat
-
-print(f"Sales: {total_sales:.2f} Tax: {total_tax:.2f} Top: {top_cat}")`;
+  const solvedQ1Code = `nums = [12, 15, 18, 21, 24]
+even = [n for n in nums if n % 2 == 0]
+total = sum(even)
+avg = total / len(even)
+print("Even:", even)
+print("Average:", avg)`;
 
   env.getEl('txtCorrectedCode').value = solvedQ1Code;
   env.getEl('btnVerifyCode').click();

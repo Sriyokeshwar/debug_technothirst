@@ -63,11 +63,11 @@ function assert(condition, message) {
 console.log('--- TEST SUITE 1: Question Line Counts & Prompt Constraints ---');
 const questions = sandbox.COMPETITION_QUESTIONS;
 
-// Semi Q1, Q2, Q3: strictly 8 to 15 lines
+// Semi Q1, Q2, Q3: strictly 5 to 15 lines
 for (let i = 0; i < 3; i++) {
   const q = questions.semi[i];
   const lines = q.buggyCode.split('\n').length;
-  assert(lines >= 8 && lines <= 15, `Semi Q${i+1} code line count (${lines}) is between 8 and 15 lines`);
+  assert(lines >= 5 && lines <= 15, `Semi Q${i+1} code line count (${lines}) is between 5 and 15 lines`);
   const promptLines = q.shortPrompt.split('\n').length;
   assert(promptLines <= 2, `Semi Q${i+1} prompt line count (${promptLines}) is <= 2 lines`);
 }
@@ -96,108 +96,81 @@ for (let i = 0; i < 2; i++) {
 console.log('\n--- TEST SUITE 2: Fixed Code Verification (All 6 Questions) ---');
 
 const solutions = {
-  semi_q1: `items = [['B', 6, 40.0], ['L', 4, 80.0], ['D', 8, 120.0], ['B', 3, 50.0], ['L', 10, 75.0]]
-total_sales = 0.0; total_tax = 0.0; max_bill = -1.0; top_cat = ''
+  semi_q1: `nums = [12, 15, 18, 21, 24]
+even = [n for n in nums if n % 2 == 0]
+total = sum(even)
+avg = total / len(even)
+print("Even:", even)
+print("Average:", avg)`,
 
-for item in items:
-    cat, qty, price = item[0], item[1], item[2]
-    base = qty * price
-    disc = base * 0.10 if qty > 5 else 0.0
-    sub = base - disc
-    tax_rate = 0.05 if cat == 'B' else 0.08
-    tax = sub * tax_rate; net = sub + tax
-    total_sales += sub; total_tax += tax
-    if net > max_bill:
-        max_bill = net; top_cat = cat
+  semi_q2: `def check(numbers, limit=10):
+    result = []
+    for n in numbers:
+        if n > limit:
+            result.append(n)
+    total = sum(result)
+    return result, total
 
-print(f"Sales: {total_sales:.2f} Tax: {total_tax:.2f} Top: {top_cat}")`,
+data = [5, 15, 20, 8]
+values, total = check(data, 10)
+print(values)
+print("Total:", total)`,
 
-  semi_q2: `students = [["Aravind", 38, 45, 'N', 78], ["Bhavna", 28, 45, 'Y', 65], ["Eshan", 42, 45, 'N', 92]]
-eligible = 0; max_pct = 0.0; top_student = ""
+  semi_q3: `text = "Python Python Java Python Java"
+words = text.split()
+count = {}
+for word in words:
+    count[word] = count.get(word, 0) + 1
+common = [w for w in count if count[w] > 1]
+print("Count:", count)
+print("Common:", common)
+print(common[1])`,
 
-for i in range(len(students)):
-    name, att, total, med, score = students[i]
-    pct = att / total * 100
-    if pct < 75.0 and (pct >= 65.0 and med == 'Y'):
-        pct += 10.0
-    if pct >= 75.0 and score >= 40:
-        eligible += 1
-        if pct > max_pct:
-            max_pct = pct; top_student = name
+  semi_q4: `class Student:
+    total = 0
+    def __init__(self, name, marks):
+        self.name = name
+        self.marks = marks
+        Student.total += 1
+    def average(self):
+        return sum(self.marks) / len(self.marks)
+    def result(self):
+        return "PASS" if self.average() >= 50 else "FAIL"
 
-print(f"Eligible: {eligible}, Top: {top_student} ({max_pct:.1f}%)")`,
+s = Student("Arun", [60, 70, 40])
+print(s.name, s.average(), s.result())
+print(Student.total)`,
 
-  semi_q3: `grid = [[28.0, 34.0, 31.0], [32.0, 36.0, 38.0], [29.0, 30.0, 37.0]]
-total = 0.0; hotspots = 0; row_avgs = []
+  final_q1: `def process(values):
+    even = [x for x in values if x % 2 == 0]
+    doubled = [x * 2 for x in even]
+    filtered = [x for x in doubled if x > 20]
+    return even, filtered
 
-for r in range(len(grid)):
-    row_sum = 0.0
-    for c in range(len(grid[0])):
-        val = grid[r][c]
-        row_sum += val; total += val
-    row_avgs.append(row_sum / len(grid[0]))
+data = [4, 8, 12, 15, 20]
+a, b = process(data)
+print("Even:", a)
+print("Filtered:", b)
+print("Total:", sum(b))`,
 
-overall_avg = total / (len(grid) * len(grid[0]))
-for r in range(len(grid)):
-    for c in range(len(grid[0])):
-        if grid[r][c] > row_avgs[r] and grid[r][c] > overall_avg:
-            hotspots += 1
+  final_q2: `def calculate(values):
+    nums = []
+    for x in values:
+        try:
+            nums.append(int(x))
+        except ValueError:
+            pass
+    positive = [x for x in nums if x > 0]
+    negative = [x for x in nums if x < 0]
+    maximum = max(negative) if negative else 0
+    average = sum(nums) / len(nums) if nums else 0
+    return {"positive": positive, "negative": negative,
+            "max": maximum, "avg": average}
 
-col_sums = [grid[0][c] + grid[1][c] + grid[2][c] for c in range(3)]
-peak_c = 0; max_c = -1.0
-for c in range(3):
-    if col_sums[c] > max_c:
-        max_c = col_sums[c]; peak_c = c
-
-print(f"Average: {overall_avg:.2f}, Hotspots: {hotspots}, Peak Column: {peak_c}")`,
-
-  semi_q4: `def calc_bill(units, peak):
-    if units <= 100: e = units * 3.0
-    elif units <= 200: e = 300.0 + (units - 100) * 4.5
-    else: e = 300.0 + 450.0 + (units - 200) * 6.0
-    tot = e + peak * 2.0
-    return tot - (tot * 0.05) if units < 80 else tot
-
-rooms = [[101, 70, 15], [102, 160, 40], [103, 240, 60]]
-total_rev = 0.0; tier3_cnt = 0; max_b = -1.0; top_room = 0
-
-for r, u, p in rooms:
-    b = calc_bill(u, p)
-    total_rev += b
-    if u > 200: tier3_cnt += 1
-    if b > max_b:
-        max_b = b; top_room = r
-
-print(f"Revenue: {total_rev:.2f}, Tier3: {tier3_cnt}, Top: Room {top_room}")`,
-
-  final_q1: `records = [["LIB-1", "Student", 4], ["LIB-2", "Faculty", 8], ["LIB-3", "Student", 14]]
-total_fines = 0.0; heavily_overdue = 0; max_fine = 0.0
-
-for pid, ptype, days in records:
-    if days <= 5: f = days * 2.0
-    elif days <= 10: f = 10.0 + (days - 5) * 5.0
-    else: f = 35.0 + (days - 10) * 10.0 + 50.0
-    if ptype == 'Faculty': f *= 0.50
-    total_fines += f
-    if days > 10: heavily_overdue += 1
-    if f > max_fine: max_fine = f
-
-print(f"Total: {total_fines:.2f}, Overdue: {heavily_overdue}, Max: {max_fine:.2f}")`,
-
-  final_q2: `teams = [["Alpha", [100, 80, 0], [25, 45, 60]], ["Beta", [100, 100, 100], [30, 40, 50]]]
-bonus_teams = 0; top_score = -1.0; champion = ""
-
-for t in teams:
-    name, scores, times = t[0], t[1], t[2]
-    raw = sum(scores[i] for i in range(3) if scores[i] > 0)
-    pen = sum(times[i] for i in range(3) if scores[i] > 0)
-    solved = sum(1 for s in scores if s > 0)
-    if solved == 3: raw += 20; bonus_teams += 1
-    net = raw - (pen * 0.1)
-    if net > top_score:
-        top_score = net; champion = name
-
-print(f"Bonus Teams: {bonus_teams}, Champion: {champion} Score: {top_score:.1f}")`
+data = ["10", "-5", "20", "", "abc", "-2"]
+result = calculate(data)
+print(result["positive"])
+print(result["max"])`
 };
 
 // Verify each solved question
@@ -219,32 +192,23 @@ allQs.forEach(q => {
   const resBuggy = sandbox.verifySubmittedCode(q, q.buggyCode);
   assert(resBuggy.success === false, `${q.id} buggy original code fails verification (errors fixed: ${resBuggy.errorsSolved}/5)`);
 
-  // Trivial single-line print mock should fail anti-cheat
-  const mockCheat = `print("${q.expectedOutput}")`;
-  const resCheat = sandbox.verifySubmittedCode(q, mockCheat);
-  assert(resCheat.success === false && resCheat.errorsSolved === 0, `${q.id} trivial mock print rejected by anti-cheat`);
+  // Trivial malicious print mock should fail
+  const mockCode = `print("${q.expectedOutput.replace(/"/g, '\\"')}")\n# mock\n# mock\n# mock\n# mock\n# mock\n# mock\n# mock`;
+  const resMock = sandbox.verifySubmittedCode(q, mockCode);
+  assert(resMock.success === false, `${q.id} trivial mock print rejected by anti-cheat`);
 
-  // Empty string
+  // Empty code should fail
   const resEmpty = sandbox.verifySubmittedCode(q, '');
-  assert(resEmpty.success === false && resEmpty.errorsSolved === 0, `${q.id} empty code returns false`);
+  assert(resEmpty.success === false, `${q.id} empty code returns false`);
 });
 
 // Partial fixes test (e.g. 2 fixes on semi_q1)
-const partialQ1 = `items = [['B', 6, 40.0], ['L', 4, 80.0], ['D', 8, 120.0], ['B', 3, 50.0], ['L', 10, 75.0]]
-total_sales = 0.0; total_tax = 0.0; max_bill = -1.0; top_cat = ''
-
-for item in items:
-    cat, qty, price = item[0], item[1], item[2]
-    base = qty * price
-    disc = base * 0.10 if qty > 5 else 0.0
-    sub = base - disc
-    tax_rate = 0.08 if cat == 'B' else 0.05
-    tax = sub * tax_rate; net = sub + tax
-    total_sales += sub; total_tax =+ tax
-    if net < max_bill:
-        max_bill = net; top_cat = cat
-
-print(f"Sales: {total_sales:.2f} Tax: {total_tax:.2f} Top: {top_cat}")`;
+const partialQ1 = `nums = [12, 15, 18, 21, 24]
+even = [n for n in nums if n % 2 == 0]
+total = sum(even)
+avg = total / len(nums)
+print("Even:", even)
+print("Average:", avg)`;
 const resPartial = sandbox.verifySubmittedCode(questions.semi[0], partialQ1);
 assert(resPartial.success === false && resPartial.errorsSolved === 2, `Partial fix on semi_q1 detects 2/5 errors and returns success=false`);
 

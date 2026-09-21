@@ -44,102 +44,81 @@ const ADMIN_HASH = 'a09d95f1dd880973ce4ca0c15646ebdbe428d5093aa9d7882a7395e025fa
    Prompts: strictly 2 lines max
    ========================================================================== */
 const COMPETITION_QUESTIONS = [
-  // QUESTION 1 (15 lines, 5 errors)
+  // QUESTION 1
   {
     id: 'semi_q1',
     number: 1,
-    title: 'Daily Meal Sales & Tax Auditing',
-    shortPrompt: 'Calculate total discounted sales, total tax, and the highest net meal category.\nApply 10% volume discount for quantity > 5, 5% tax for Breakfast (\'B\') vs 8% for others, and track top category.',
-    expectedOutput: 'Sales: 2225.00 Tax: 167.02 Top: D',
-    buggyCode: `items = [['B', 6, 40.0], ['L', 4, 80.0], ['D', 8, 120.0], ['B', 3, 50.0], ['L', 10, 75.0]]
-total_sales = 0.0; total_tax = 0.0; max_bill = -1.0; top_cat = ''
-
-for item in items:
-    cat, qty, price = item[0], item[1], item[2]
-    base = qty * price
-    disc = price * 0.10 if qty < 5 else 0.0
-    sub = base - disc
-    tax_rate = 0.08 if cat == 'B' else 0.05
-    tax = sub * tax_rate; net = sub + tax
-    total_sales += sub; total_tax =+ tax
-    if net < max_bill:
-        max_bill = net; top_cat = cat
-
-print(f"Sales: {total_sales:.2f} Tax: {total_tax:.2f} Top: {top_cat}")`
+    title: 'Even Numbers Filter & Average Calculation',
+    shortPrompt: 'Filter all even integers from the list and compute their sum and average.\nEnsure even numbers are correctly identified and average divides by the count of even numbers.',
+    expectedOutput: 'Even: [12, 18, 24]\nAverage: 18.0',
+    buggyCode: `nums = [12, 15, 18, 21, 24]
+even = [n for n in nums if n % 2 == 1]
+total = sum(even)
+avg = total / len(nums)
+print("Even:", even)
+print("Average:", avg)`
   },
 
-  // QUESTION 2 (14 lines, 5 errors)
+  // QUESTION 2
   {
     id: 'semi_q2',
     number: 2,
-    title: 'Student Exam Attendance & Medical Condonation',
-    shortPrompt: 'Compute attendance percentage and eligibility with a 10% condonation bonus for attendance in [65%, 75%) with medical certificate (\'Y\').\nEligible if attendance >= 75% and score >= 40. Track eligible count and top student.',
-    expectedOutput: 'Eligible: 2, Top: Eshan (93.3%)',
-    buggyCode: `students = [["Aravind", 38, 45, 'N', 78], ["Bhavna", 28, 45, 'Y', 65], ["Eshan", 42, 45, 'N', 92]]
-eligible = 0; max_pct = 0.0; top_student = ""
+    title: 'Threshold Filter & Numeric Summation',
+    shortPrompt: 'Filter all numbers strictly greater than the limit and compute their cumulative sum.\nEnsure values are appended as numbers so sum() succeeds without TypeError.',
+    expectedOutput: '[15, 20]\nTotal: 35',
+    buggyCode: `def check(numbers, limit=10):
+    result = []
+    for n in numbers:
+        if n > limit:
+            result.append(str(n))
+    total = sum(result)
+    return result, total
 
-for i in range(1, len(students)):
-    name, att, total, med, score = students[i]
-    pct = att / total + 100
-    if pct < 75.0 and (pct >= 65.0 or med == 'Y'):
-        pct += 10.0
-    if pct >= 75.0 and score >= 40:
-        eligible = eligble + 1
-        if pct < max_pct:
-            max_pct = pct; top_student = name
-
-print(f"Eligible: {eligible}, Top: {top_student} ({max_pct:.1f}%)")`
+data = [5, 15, 20, 8]
+values, total = check(data, 10)
+print(values)
+print("Total:", total)`
   },
 
-  // QUESTION 3 (15 lines, 5 errors)
+  // QUESTION 3
   {
     id: 'semi_q3',
     number: 3,
-    title: 'Sensor Matrix Temperature & Hotspots Analysis',
-    shortPrompt: 'Analyze a 3x3 sensor matrix to compute the overall average temperature and count active hotspots.\nA hotspot is strictly greater than its row average and the overall average. Find the peak column index.',
-    expectedOutput: 'Average: 32.78, Hotspots: 4, Peak Column: 2',
-    buggyCode: `grid = [[28.0, 34.0, 31.0], [32.0, 36.0, 38.0], [29.0, 30.0, 37.0]]
-total = 0.0; row_sum = 0.0; hotspots = 0; row_avgs = []
-for r in range(len(grid)):
-    for c in range(len(grid[0])):
-        val = grid[c][r]; row_sum += val; total += val
-    row_avgs.append(row_sum / len(grid[0]))
-overall_avg = total / len(grid)
-for r in range(len(grid)):
-    for c in range(len(grid[0])):
-        if grid[r][c] <= row_avgs[r] and grid[r][c] > overall_avg: hotspots += 1
-col_sums = [grid[0][c] + grid[1][c] + grid[2][c] for c in range(3)]
-peak_c = 0; max_c = -1.0
-for c in range(3):
-    if col_sums[c] < max_c: max_c = col_sums[c]; peak_c = c
-print(f"Average: {overall_avg:.2f}, Hotspots: {hotspots}, Peak Column: {peak_c}")`
+    title: 'Word Frequency Counter & Common Words Indexing',
+    shortPrompt: 'Count word occurrences in text and extract repeated words.\nFix index boundary error when accessing elements of the common words list.',
+    expectedOutput: `Count: {'Python': 3, 'Java': 2}\nCommon: ['Python', 'Java']\nJava`,
+    buggyCode: `text = "Python Python Java Python Java"
+words = text.split()
+count = {}
+for word in words:
+    count[word] = count.get(word, 0) + 1
+common = [w for w in count if count[w] > 1]
+print("Count:", count)
+print("Common:", common)
+print(common[2])`
   },
 
-  // QUESTION 4 (18 lines, 5 errors)
+  // QUESTION 4
   {
     id: 'semi_q4',
     number: 4,
-    title: 'Hostel Tiered Power Tariff & Peak Surcharges',
-    shortPrompt: 'Calculate room electricity with slabs (0-100 @ 3.0, 101-200 @ 4.5, >200 @ 6.0), peak surcharge (+2.0), and 5% green rebate if units < 80.\nTrack total revenue, tier-3 rooms count (>200 units), and the highest billed room.',
-    expectedOutput: 'Revenue: 1988.00, Tier3: 1, Top: Room 103',
-    buggyCode: `def calc_bill(units, peak):
-    if units <= 100: e = units * 3.0
-    elif units <= 200: e = 300.0 + (units - 100) * 4.5
-    else: e = 300.0 + 450.0 + (units - 100) * 6.0
-    tot = e + peak * 2.0
-    return tot - 5.0 if units < 80 else tot
+    title: 'Student Class Attributes & Method Invocations',
+    shortPrompt: 'Manage student records with class-level student counters, average marks, and pass/fail evaluation.\nFix class attribute access inside constructor and call the average method properly.',
+    expectedOutput: 'Arun 56.666666666666664 PASS\n1',
+    buggyCode: `class Student:
+    total = 0
+    def __init__(self, name, marks):
+        self.name = name
+        self.marks = marks
+        total += 1
+    def average(self):
+        return sum(self.marks) / len(self.marks)
+    def result(self):
+        return "PASS" if self.average() >= 50 else "FAIL"
 
-rooms = [[101, 70, 15], [102, 160, 40], [103, 240, 60]]
-total_rev = 0.0; tier3_cnt = 1; max_b = -1.0; top_room = 0
-
-for r, u, p in rooms:
-    b = calc_bill(p, u)
-    total_rev += b
-    if u > 200: tier3_cnt += 1
-    if b < max_b:
-        max_b = b; top_room = r
-
-print(f"Revenue: {total_rev:.2f}, Tier3: {tier3_cnt}, Top: Room {top_room}")`
+s = Student("Arun", [60, 70, 40])
+print(s.name, s.average, s.result())
+print(Student.total)`
   }
 ];
 
@@ -916,103 +895,94 @@ function verifySubmittedCode(qData, userCode) {
     .filter(l => l.length > 0 && !l.startsWith('#'));
 
   // Anti-Cheat: Reject trivial mock submissions
-  if (lines.length < 8) {
+  if (lines.length < 5) {
     return { success: false, errorsSolved: 0 };
   }
 
   const codeClean = userCode.replace(/\r/g, '');
-  const hasForOrWhile = /\b(for|while)\b/.test(codeClean);
-  if (!hasForOrWhile) {
-    return { success: false, errorsSolved: 0 };
-  }
-
   let errorsFixed = 0;
   const qId = qData.id;
 
   if (qId === 'semi_q1') {
-    // Error 1: qty > 5
-    const e1 = /qty\s*>\s*5|qty\s*>=\s*6|5\s*<\s*qty/.test(codeClean) && !/qty\s*<\s*5/.test(codeClean);
-    // Error 2: base * 0.10
-    const e2 = /(base|qty\s*\*\s*price)\s*\*\s*(0\.1|0\.10|\.1)/.test(codeClean) && !/price\s*\*\s*0\.10/.test(codeClean);
-    // Error 3: tax rate 0.05 for B, 0.08 for others
-    const e3 = /(0\.05|\.05)\s+if\s+cat\s*==\s*['"]B['"]\s+else\s+(0\.08|\.08)|(0\.08|\.08)\s+if\s+cat\s*!=\s*['"]B['"]\s+else\s+(0\.05|\.05)/.test(codeClean) ||
-               (/if\s+cat\s*==\s*['"]B['"]\s*:[\s\S]*?0\.05/.test(codeClean) && /else\s*:[\s\S]*?0\.08/.test(codeClean));
-    // Error 4: total_tax += tax
-    const e4 = /total_tax\s*\+=\s*tax|total_tax\s*=\s*total_tax\s*\+\s*tax/.test(codeClean) && !/total_tax\s*=\+\s*tax/.test(codeClean);
-    // Error 5: net > max_bill
-    const e5 = /net\s*>\s*max_bill|max_bill\s*<\s*net/.test(codeClean) && !/net\s*<\s*max_bill/.test(codeClean);
+    const hasListOrLoop = /\[.*?for\s+n\s+in\s+nums.*?\]|for\s+n\s+in\s+nums\s*:/.test(codeClean);
+    if (!hasListOrLoop) return { success: false, errorsSolved: 0 };
 
-    if (e1) errorsFixed++;
-    if (e2) errorsFixed++;
-    if (e3) errorsFixed++;
-    if (e4) errorsFixed++;
-    if (e5) errorsFixed++;
+    // Error 1: even condition fixed (n % 2 == 0 or n % 2 != 1)
+    const e1 = /(?:n\s*%\s*2\s*==\s*0|n\s*%\s*2\s*!=\s*1|not\s*\(?\s*n\s*%\s*2\s*\)?|\(?\s*n\s*&\s*1\s*\)?\s*==\s*0)/.test(codeClean) && !/n\s*%\s*2\s*==\s*1/.test(codeClean);
+    // Error 2: average divided by len(even) or count of evens
+    const e2 = /(?:total\s*\/\s*len\s*\(\s*even\s*\)|len\s*\(\s*even\s*\))/.test(codeClean) && !/total\s*\/\s*len\s*\(\s*nums\s*\)/.test(codeClean);
 
-    return { success: (errorsFixed === 5), errorsSolved: errorsFixed };
+    if (e1) errorsFixed += 2;
+    if (e2) errorsFixed += 3;
+    const allFixed = (e1 && e2);
+    return { success: allFixed, errorsSolved: allFixed ? 5 : (e1 ? 2 : (e2 ? 3 : 0)) };
   }
 
   if (qId === 'semi_q2') {
-    // Error 1: start range at 0
-    const e1 = /range\s*\(\s*(0\s*,\s*)?len\s*\(\s*students\s*\)\s*\)/.test(codeClean) && !/range\s*\(\s*1\s*,/.test(codeClean);
-    // Error 2: att / total * 100
-    const e2 = /att\s*\/\s*total\s*\*\s*100|\(\s*att\s*\/\s*total\s*\)\s*\*\s*100/.test(codeClean) && !/att\s*\/\s*total\s*\+\s*100/.test(codeClean);
-    // Error 3: and med == 'Y'
-    const e3 = /pct\s*>=\s*65(\.0)?\s+and\s+med\s*==\s*['"]Y['"]|med\s*==\s*['"]Y['"]\s+and\s+pct\s*>=\s*65/.test(codeClean);
-    // Error 4: variable typo eligble fixed
-    const e4 = !/\beligble\b/.test(codeClean) && /eligible\s*(\+=|\s*=\s*eligible\s*\+\s*1)/.test(codeClean);
-    // Error 5: pct > max_pct
-    const e5 = /pct\s*>\s*max_pct|max_pct\s*<\s*pct/.test(codeClean) && !/pct\s*<\s*max_pct/.test(codeClean);
+    const hasFunc = /def\s+check\s*\(/.test(codeClean);
+    const hasLoop = /for\s+n\s+in\s+numbers\s*:/.test(codeClean);
+    if (!hasFunc || !hasLoop) return { success: false, errorsSolved: 0 };
 
-    if (e1) errorsFixed++;
-    if (e2) errorsFixed++;
-    if (e3) errorsFixed++;
-    if (e4) errorsFixed++;
-    if (e5) errorsFixed++;
+    // Error 1: append number directly (n or int(n)), not str(n)
+    const e1 = !/result\.append\s*\(\s*str\s*\(/.test(codeClean) && /result\.append\s*\(\s*(?:int\()?\s*n\s*\)?\s*\)/.test(codeClean);
+    // Error 2: total is calculated with sum
+    const e2 = /total\s*=\s*sum\s*\(\s*result\s*\)|sum\s*\(\s*result\s*\)/.test(codeClean);
 
-    return { success: (errorsFixed === 5), errorsSolved: errorsFixed };
+    if (e1) errorsFixed += 3;
+    if (e2) errorsFixed += 2;
+    const allFixed = (e1 && e2);
+    return { success: allFixed, errorsSolved: allFixed ? 5 : (e1 ? 3 : 0) };
   }
 
   if (qId === 'semi_q3') {
-    // Error 1: row_sum reset inside outer row loop
-    const e1 = /for\s+r\s+in\s+range\s*\([\s\S]*?row_sum\s*=\s*0(\.0)?/.test(codeClean) ||
-               (codeClean.indexOf('row_sum = 0') > codeClean.indexOf('for r in range'));
-    // Error 2: grid[r][c] correctly indexed
-    const e2 = /val\s*=\s*grid\s*\[\s*r\s*\]\s*\[\s*c\s*\]/.test(codeClean) && !/val\s*=\s*grid\s*\[\s*c\s*\]\s*\[\s*r\s*\]/.test(codeClean);
-    // Error 3: total cells 9 or len(grid)*len(grid[0])
-    const e3 = /total\s*\/\s*(9|len\s*\(\s*grid\s*\)\s*\*\s*len\s*\(\s*grid\s*\[\s*0\s*\]\s*\)|\(\s*len\s*\(\s*grid\s*\)\s*\*\s*len\s*\(\s*grid\s*\[\s*0\s*\]\s*\)\s*\))/.test(codeClean);
-    // Error 4: grid[r][c] > row_avgs[r]
-    const e4 = /grid\s*\[\s*r\s*\]\s*\[\s*c\s*\]\s*>\s*row_avgs\s*\[\s*r\s*\]/.test(codeClean) && !/grid\s*\[\s*r\s*\]\s*\[\s*c\s*\]\s*<=\s*row_avgs\s*\[\s*r\s*\]/.test(codeClean);
-    // Error 5: col_sums[c] > max_c
-    const e5 = /col_sums\s*\[\s*c\s*\]\s*>\s*max_c|max_c\s*<\s*col_sums\s*\[\s*c\s*\]/.test(codeClean) && !/col_sums\s*\[\s*c\s*\]\s*<\s*max_c/.test(codeClean);
+    const hasCount = /count\s*\[\s*word\s*\]/.test(codeClean);
+    if (!hasCount) return { success: false, errorsSolved: 0 };
 
-    if (e1) errorsFixed++;
-    if (e2) errorsFixed++;
-    if (e3) errorsFixed++;
-    if (e4) errorsFixed++;
-    if (e5) errorsFixed++;
+    // Error 1: index out of bounds fixed (e.g. common[1], common[0], common[-1] instead of common[2])
+    const e1 = !/common\s*\[\s*2\s*\]/.test(codeClean) && /(?:common\s*\[\s*(?:1|0|-1)\s*\]|common\s*\[\s*len\s*\(\s*common\s*\)\s*-\s*1\s*\]|try\s*:[\s\S]*?common\s*\[\s*2\s*\][\s\S]*?except\s+IndexError)/.test(codeClean);
+    // Error 2: common words filter preserved/valid
+    const e2 = /common\s*=\s*\[\s*w\s+for\s+w\s+in\s+count\s+if\s+count\s*\[\s*w\s*\]\s*>\s*1\s*\]/.test(codeClean);
 
-    return { success: (errorsFixed === 5), errorsSolved: errorsFixed };
+    if (e1) errorsFixed += 3;
+    if (e2) errorsFixed += 2;
+    const allFixed = (e1 && e2);
+    return { success: allFixed, errorsSolved: allFixed ? 5 : (e1 ? 3 : 0) };
   }
 
   if (qId === 'semi_q4') {
-    // Error 1: units - 200 in tier 3
-    const e1 = /\(\s*units\s*-\s*200\s*\)\s*\*\s*6(\.0)?/.test(codeClean) && !/\(\s*units\s*-\s*100\s*\)\s*\*\s*6(\.0)?/.test(codeClean);
-    // Error 2: green rebate 5%
-    const e2 = /tot\s*-\s*\(?\s*tot\s*\*\s*(0\.05|\.05)\s*\)?|tot\s*\*\s*(0\.95|\.95)/.test(codeClean) && !/tot\s*-\s*5(\.0)?\b/.test(codeClean);
-    // Error 3: tier3_cnt initialized to 0
-    const e3 = /tier3_cnt\s*=\s*0\b/.test(codeClean) && !/tier3_cnt\s*=\s*1\b/.test(codeClean);
-    // Error 4: calc_bill(u, p) in proper parameter order
-    const e4 = /calc_bill\s*\(\s*u\s*,\s*p\s*\)/.test(codeClean) && !/calc_bill\s*\(\s*p\s*,\s*u\s*\)/.test(codeClean);
-    // Error 5: b > max_b
-    const e5 = /b\s*>\s*max_b|max_b\s*<\s*b/.test(codeClean) && !/b\s*<\s*max_b/.test(codeClean);
+    const hasClass = /class\s+Student\s*:/.test(codeClean);
+    if (!hasClass) return { success: false, errorsSolved: 0 };
 
-    if (e1) errorsFixed++;
-    if (e2) errorsFixed++;
-    if (e3) errorsFixed++;
-    if (e4) errorsFixed++;
-    if (e5) errorsFixed++;
+    // Error 1: Student.total += 1 or self.__class__.total += 1 inside __init__
+    const e1 = /(?:Student\.total|self\.__class__\.total)\s*(?:\+=|\s*=\s*(?:Student|self\.__class__)\.total\s*\+\s*1)/.test(codeClean) && !/^\s*total\s*\+=\s*1/m.test(codeClean);
+    // Error 2: s.average() invoked as method call
+    const e2 = /s\.average\s*\(\s*\)/.test(codeClean) && !/print\s*\(\s*s\.name\s*,\s*s\.average\s*,/.test(codeClean);
 
-    return { success: (errorsFixed === 5), errorsSolved: errorsFixed };
+    if (e1) errorsFixed += 3;
+    if (e2) errorsFixed += 2;
+    const allFixed = (e1 && e2);
+    return { success: allFixed, errorsSolved: allFixed ? 5 : (e1 ? 3 : 0) };
+  }
+
+  if (qId === 'final_q1') {
+    const hasFunc = /def\s+process\s*\(/.test(codeClean);
+    if (!hasFunc) return { success: false, errorsSolved: 0 };
+
+    const e1 = (!/map\s*\(\s*lambda/.test(codeClean) && /\[\s*x\s*\*\s*2\s+for\s+x\s+in\s+even\s*\]/.test(codeClean)) ||
+               /filtered\s*=\s*\[\s*x\s*\*\s*2\s+for\s+x\s+in\s+even\s+if\s*x\s*\*\s*2\s*>\s*20\s*\]/.test(codeClean);
+    const e2 = /return\s+even\s*,\s*filtered/.test(codeClean);
+    const allFixed = (e1 && e2);
+    return { success: allFixed, errorsSolved: allFixed ? 5 : 0 };
+  }
+
+  if (qId === 'final_q2') {
+    const hasFunc = /def\s+calculate\s*\(/.test(codeClean);
+    if (!hasFunc) return { success: false, errorsSolved: 0 };
+
+    const e1 = /(?:except\s+ValueError[\s\S]*?pass|x\.lstrip\(['"]-['"]\)\.isdigit\(\)|try\s*:[\s\S]*?nums\.append\s*\(\s*int|\.isdigit\(\))/.test(codeClean) || !/return\s*['"]Invalid['"]/.test(codeClean);
+    const e2 = /positive\s*=/.test(codeClean) && /return\s*\{/.test(codeClean);
+    const allFixed = (e1 && e2);
+    return { success: allFixed, errorsSolved: allFixed ? 5 : 0 };
   }
 
   return { success: false, errorsSolved: 0 };
