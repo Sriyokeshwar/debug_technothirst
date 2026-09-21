@@ -55,14 +55,16 @@ assert(html.includes('id="regDegree"'), 'regDegree dropdown intact');
 assert(html.includes('id="regDepartment"'), 'regDepartment input intact');
 assert(html.includes('id="regCollege"'), 'regCollege input intact');
 
-// --- 3. POSTER COLOR SYSTEM & CYBER STYLING ---
-console.log('\n--- 3. Poster Color Palette & Styling ---');
-assert(css.includes('#031522'), 'Deep space navy #031522 defined in CSS');
-assert(css.includes('#00D9FF') || css.includes('#20E5FF'), 'Luminous cyan #00D9FF / #20E5FF defined in CSS');
-assert(css.includes('#FFD400') || css.includes('#FFE840') || css.includes('#FFD700'), 'Gold palette defined in CSS');
-assert(css.includes('backdrop-filter: blur'), 'Glassmorphism backdrop-filter used');
+// --- 3. LIGHT TECH THEME COLOR SYSTEM & STYLING ---
+console.log('\n--- 3. Light Tech Theme Color System & Styling ---');
+assert(css.includes('#F0FAFF'), 'Primary soft ice background #F0FAFF defined in CSS');
+assert(css.includes('#062B45'), 'Deep navy heading #062B45 defined in CSS');
+assert(css.includes('#06B6D4') || css.includes('#0891B2'), 'Technology cyan #06B6D4 / #0891B2 defined in CSS');
+assert(css.includes('#D97706') || css.includes('#B45309'), 'Bronze/amber branding palette defined in CSS');
+assert(css.includes('#071221'), 'Dark developer console background #071221 preserved for code editor');
+assert(css.includes('backdrop-filter: blur'), 'Restrained glassmorphism backdrop-filter used');
 assert(css.includes('.cyber-corner'), '.cyber-corner CSS rules present');
-assert(css.includes('.reg-brand-title'), '3D metallic gold title rule present');
+assert(css.includes('.reg-brand-title'), 'Metallic bronze-gold branding title rule present');
 assert(css.includes('--success-green: #10B981'), 'High-tech success green token present');
 assert(css.includes('--error-red: #EF4444'), 'High-tech error red token present');
 assert(css.includes('.verification-status-banner.verified'), 'Verified banner style present');
