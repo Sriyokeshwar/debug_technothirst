@@ -3,559 +3,802 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TECHNOTHIRST’26 — Python Debugging Championship | AVCCE MCA</title>
-  <link rel="stylesheet" href="styles.css">
-  <!-- Fallback local stylesheet link -->
+  <title>TECHNOTHIRST’26 — Python Debugging Tournament | AVCCE MCA</title>
+  <!-- Technothirst’26 Cyber Tech Theme Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="light-theme">
+<body>
 
-  <!-- =========================================================================
-       1. TOP HEADER & SYMPOSIUM BRANDING
-       ========================================================================= -->
-  <header class="top-header" role="banner">
-    <div class="header-container">
-      
-      <!-- Brand Identity Left -->
-      <div class="brand-block">
-        <div class="mca-logo-frame">
-          <img src="assets/mca_logo.jpg" alt="MCA Department Logo" class="brand-logo" onerror="this.style.display='none'">
-        </div>
-        <div class="brand-titles">
-          <div class="college-meta">A.V.C. COLLEGE OF ENGINEERING (AUTONOMOUS) &bull; ESTD: 1996</div>
-          <div class="dept-name">DEPARTMENT OF COMPUTER APPLICATIONS (MCA)</div>
-          <div class="symposium-title">
-            <span class="symp-accent">TECHNOTHIRST’26</span>
-            <span class="symp-tag">National Technical Symposium</span>
-          </div>
-        </div>
+  <!-- TOP NAVBAR -->
+  <header class="top-navbar">
+    <div class="brand-group">
+      <div class="brand-logo-wrapper">
+        <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE MCA Logo" class="brand-logo-img">
       </div>
-
-      <!-- Center Test Mode Pill -->
-      <div class="header-center-meta">
-        <div class="event-badge">
-          <span class="pulse-indicator"></span>
-          <span class="event-badge-text">DEBUGGING CHAMPIONSHIP</span>
-        </div>
-        <div class="round-badge">SEMI-FINAL / FINAL STAGE</div>
+      <div class="brand-info">
+        <h1>TECHNOTHIRST’26</h1>
+        <span>A.V.C. COLLEGE OF ENGINEERING &bull; MCA</span>
       </div>
-
-      <!-- Right Controls: Live Timer & Quick Actions -->
-      <div class="header-controls">
-        <div class="timer-card" id="headerTimerCard" title="Remaining Test Time">
-          <div class="timer-icon-svg" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-          </div>
-          <div class="timer-data">
-            <span class="timer-caption">TIME LEFT</span>
-            <span class="timer-value" id="headerTimerDisplay">60:00</span>
-          </div>
-        </div>
-
-        <button type="button" class="btn-ghost-sm" id="btnRestartTest" title="Restart / Reset Test" aria-label="Restart Test">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-            <path d="M3 3v5h5"></path>
-          </svg>
-          <span>Reset</span>
-        </button>
+      <div id="navStageBadge" class="nav-stage-badge">
+        <span class="pulse-dot"></span>
+        <span id="navStageText">SEMI-FINAL</span>
       </div>
+    </div>
 
+    <!-- Header Navigation Links for Page 1 -->
+    <nav class="nav-links-bar" id="navLinksBar">
+      <button id="navLinkHome" class="nav-link-btn active" type="button">Home</button>
+      <button id="navLinkEvent" class="nav-link-btn" type="button">Event</button>
+      <button id="navLinkCampus" class="nav-link-btn" type="button">Campus</button>
+    </nav>
+
+    <!-- Question Indicator (Q1 - Q4) -->
+    <div id="navCenterProgress" class="nav-center-progress">
+      <div class="q-step-indicator" id="qStepPills">
+        <!-- Rendered dynamically for exactly 4 questions -->
+      </div>
+    </div>
+
+    <!-- Right Controls: Timer & Admin -->
+    <div class="nav-right-controls">
+      <div id="navTimerBox" class="nav-timer-box">
+        <span class="timer-label" id="timerLabel">Time Left</span>
+        <span class="timer-display" id="timerDisplay">60:00</span>
+      </div>
+      <button class="btn-admin" id="btnAdminOpen">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>
+        Admin
+      </button>
     </div>
   </header>
 
-  <!-- =========================================================================
-       2. EVENT SHOWCASE & CAMPUS IDENTITY STRIP (COLLAPSIBLE / ACCORDION)
-       ========================================================================= -->
-  <section class="event-strip" id="eventStrip" aria-label="Event Overview">
-    <div class="strip-container">
-      <div class="campus-preview-card">
-        <img src="assets/college_entrance.jpg" alt="A.V.C. College Campus Entrance" class="campus-thumb" onerror="this.style.display='none'">
-        <div class="campus-info">
-          <span class="campus-label">VENUE &bull; HOST INSTITUTION</span>
-          <h2 class="campus-title">A.V.C. College of Engineering, Mannampandal</h2>
-          <p class="campus-desc">NAAC 'A' Grade &bull; NBA Accredited &bull; An Autonomous Institution Affiliated to Anna University</p>
+  <!-- MAIN APP VIEWS -->
+  <main class="app-main">
+
+    <!-- PAGE 1: HOME PAGE / EVENT LANDING -->
+    <section id="viewHome" class="view-screen active">
+      <div class="home-wrapper">
+
+        <!-- Hero Section -->
+        <div class="home-hero-card">
+          <div class="hero-dept-badge">
+            <span class="pulse-dot"></span>
+            <span>Department of Computer Applications Presents</span>
+          </div>
+
+          <div class="hero-college-meta">
+            <span class="college-title">A.V.C. COLLEGE OF ENGINEERING</span>
+            <span class="college-sub">(AUTONOMOUS) &bull; ESTD: 1996 &bull; NAAC 'A' Grade & NBA Accredited</span>
+          </div>
+
+          <h1 class="hero-brand-title">TECHNOTHIRST’26</h1>
+          <div class="hero-symposium-sub">A National Level Student’s Technical Symposium</div>
+          <div class="hero-tagline">CODE &bull; LEARN &bull; COMPETE &bull; GROW</div>
+
+          <div class="hero-condition-pill">
+            <span class="condition-badge">SEMI-FINAL ROUND</span>
+            <span class="condition-name">PYTHON DEBUGGING CHAMPIONSHIP</span>
+            <span class="condition-date">📅 23.09.2026</span>
+          </div>
         </div>
+
+        <!-- College Entrance Photograph Section -->
+        <div id="campusSection" class="home-campus-card">
+          <div class="campus-image-frame">
+            <img src="assets/avc_entrance.jpg" onerror="this.onerror=null; this.src='assets/logo.jpg';" alt="A.V.C. College of Engineering Entrance" class="campus-entrance-img">
+            <div class="campus-caption-overlay">
+              <span class="caption-pin">🏛️</span>
+              <span>A.V.C. COLLEGE OF ENGINEERING &bull; MANNAMPANDAL, MAYILADUTHURAI</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event Information Cards Grid -->
+        <div id="eventDetails" class="home-info-grid">
+          <div class="info-card">
+            <div class="info-card-icon">💻</div>
+            <div class="info-card-content">
+              <h3>PYTHON CODE DEBUGGING</h3>
+              <p>4 Intentional-Bug Questions &bull; 20 Total Errors to Fix &bull; Standard Python 3 Logic</p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-icon">🏆</div>
+            <div class="info-card-content">
+              <h3>CASH PRIZES</h3>
+              <p>1st Place: <strong>₹500</strong> &bull; 2nd Place: <strong>₹300</strong> &bull; 3rd Place: <strong>₹200</strong></p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-icon">⏱️</div>
+            <div class="info-card-content">
+              <h3>EXAM TIME LIMIT</h3>
+              <p>60 Minutes Total Duration &bull; Early Exit Gate Unlocks at Exactly 45:00</p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-icon">📜</div>
+            <div class="info-card-content">
+              <h3>OFFICIAL PERKS</h3>
+              <p>Institutional Certificate of Merit, Lunch & Refreshments Provided to all Contestants</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- FULL BLUE CTA SECTION -->
+        <div class="home-cta-banner">
+          <div class="cta-banner-content">
+            <div class="cta-banner-icon">👥</div>
+            <div class="cta-banner-text">
+              <h2>BE A PART OF TECHNOTHIRST’26</h2>
+              <p>Showcase Your Python Debugging Skills & Win Championship Honors</p>
+            </div>
+          </div>
+          <button id="btnHomeRegisterNow" class="btn btn-cta-register" type="button">
+            REGISTER NOW →
+          </button>
+        </div>
+
       </div>
+    </section>
 
-      <div class="symposium-highlights">
-        <div class="highlight-chip">
-          <span class="chip-icon">💻</span>
-          <div class="chip-text">
-            <strong>Language:</strong> Python 3.12
-          </div>
-        </div>
-        <div class="highlight-chip">
-          <span class="chip-icon">🏆</span>
-          <div class="chip-text">
-            <strong>Championship:</strong> Cash Honors & Merit
-          </div>
-        </div>
-        <div class="highlight-chip">
-          <span class="chip-icon">⏱️</span>
-          <div class="chip-text">
-            <strong>Total Time:</strong> 60 Minutes
-          </div>
-        </div>
-        <div class="highlight-chip">
-          <span class="chip-icon">🛡️</span>
-          <div class="chip-text">
-            <strong>Offline Test:</strong> Zero External Dependency
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+    <!-- PAGE 2: REGISTRATION PAGE (DEDICATED CENTERED CONTESTANT FORM) -->
+    <section id="viewRegistration" class="view-screen">
+      <div class="reg-page-container">
 
-  <!-- =========================================================================
-       3. MAIN APPLICATION WORKSPACE
-       ========================================================================= -->
-  <main class="main-workspace" id="mainWorkspace" role="main">
-    <div class="workspace-grid">
-
-      <!-- =====================================================================
-           LEFT / PRIMARY CONTENT AREA: CODE & QUESTION
-           ===================================================================== -->
-      <section class="test-area-panel" aria-label="Question and Code Editor">
-        
-        <!-- Question Meta Header Bar -->
-        <div class="question-header-bar">
-          <div class="q-badge-group">
-            <span class="q-number-badge" id="lblQuestionNumber">QUESTION 01</span>
-            <span class="q-difficulty-badge" id="lblDifficulty">Easy</span>
-            <span class="q-lang-badge" id="lblLanguage">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="16 18 22 12 16 6"></polyline>
-                <polyline points="8 6 2 12 8 18"></polyline>
-              </svg>
-              <span id="lblLangText">Python 3</span>
-            </span>
-          </div>
-
-          <div class="q-points-badge">
-            <span class="pts-val">+10</span>
-            <span class="pts-lbl">PTS</span>
-          </div>
+        <!-- Back to Home Control -->
+        <div class="reg-top-nav-bar">
+          <button id="btnBackToHome" class="btn-back-home" type="button">
+            ← Back to Home
+          </button>
+          <span class="reg-page-step-tag">STEP 1 OF 3 &bull; CONTESTANT VERIFICATION</span>
         </div>
 
-        <!-- Question Title -->
-        <h1 class="question-title" id="lblQuestionTitle">List Even Filtering &amp; Average Calculation</h1>
+        <!-- Centered Contestant Form Card -->
+        <div class="reg-wrapper cyber-panel">
+          <span class="cyber-corner top-left"></span>
+          <span class="cyber-corner top-right"></span>
+          <span class="cyber-corner bottom-left"></span>
+          <span class="cyber-corner bottom-right"></span>
 
-        <!-- Coding Assessment Editor Area -->
-        <div class="code-editor-card" id="codeEditorCard">
-          <div class="editor-header">
-            <div class="editor-mac-dots" aria-hidden="true">
-              <span class="dot dot-red"></span>
-              <span class="dot dot-yellow"></span>
-              <span class="dot dot-green"></span>
+          <div class="reg-form-header">
+            <div class="reg-logo-container">
+              <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE MCA Logo" class="reg-hero-logo">
             </div>
-            <div class="editor-filename">
-              <span class="file-icon">🐍</span>
-              <span class="file-name-text" id="lblEditorFileName">buggy_solution.py</span>
-            </div>
-            <div class="editor-actions">
-              <button type="button" class="editor-btn" id="btnCopyCode" title="Copy code to clipboard">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-                <span id="copyBtnText">Copy Code</span>
-              </button>
-              <button type="button" class="editor-btn" id="btnResetCodeView" title="Reset Code Scroll">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                  <path d="M3 3v5h5"></path>
-                </svg>
-                <span>Reset View</span>
-              </button>
+            <h2>CONTESTANT ONBOARDING</h2>
+            <p>Register for the Technothirst’26 Python Debugging Semi-Final</p>
+            <div class="reg-telemetry-strip" style="margin-top: 12px;">
+              <span class="telemetry-chip live"><span class="pulse-dot"></span> SYSTEM ONLINE</span>
+              <span class="telemetry-chip"><span class="t-label">ENROLLED:</span> <span class="t-val" id="regCachedCount">0</span></span>
             </div>
           </div>
 
-          <!-- Professional Code Area with Synced Line Numbers -->
-          <div class="editor-viewport" id="editorViewport">
-            <div class="code-gutter" id="codeGutter" aria-hidden="true">
-              <!-- Dynamically rendered 1, 2, 3... -->
+          <form id="formRegistration" novalidate>
+            <div class="reg-form-group">
+              <label for="regStudentName">Full Name <span class="req">*</span></label>
+              <input type="text" id="regStudentName" class="reg-form-input" placeholder="e.g. Sriyokesh K" required>
+              <div class="reg-form-error" id="errStudentName">Student name is required.</div>
             </div>
-            <div class="code-lines-wrapper">
-              <pre class="code-content" id="codeContent" tabindex="0"><code><!-- Code with syntax spans inserted via JS --></code></pre>
-            </div>
-          </div>
-        </div>
 
-        <!-- Debugging Question / Problem Prompt -->
-        <div class="instruction-box">
-          <div class="instruction-header">
-            <span class="inst-icon">🔍</span>
-            <span class="inst-label">DEBUGGING SPECIFICATION</span>
-          </div>
-          <p class="instruction-text" id="lblInstructionText">
-            Examine the buggy code above. Identify the runtime/logical issues causing this implementation to produce incorrect results.
+            <div class="reg-form-group">
+              <label for="regRollNo">Roll Number / Register Number <span class="req">*</span></label>
+              <input type="text" id="regRollNo" class="reg-form-input" placeholder="e.g. 21MCA042" required>
+              <div class="reg-form-error" id="errRollNo">Register number is required.</div>
+            </div>
+
+            <!-- DEGREE DROPDOWN (11 SPECIFIED DEGREES) -->
+            <div class="reg-form-group">
+              <label for="regDegree">Degree <span class="req">*</span></label>
+              <select id="regDegree" name="degree" class="reg-form-select" required>
+                <option value="" disabled selected>Select Degree...</option>
+                <option value="B.Sc Computer Science">B.Sc Computer Science</option>
+                <option value="BCA">BCA</option>
+                <option value="B.E Computer Science and Engineering">B.E Computer Science and Engineering</option>
+                <option value="B.Tech Information Technology">B.Tech Information Technology</option>
+                <option value="B.Tech Artificial Intelligence and Data Science">B.Tech Artificial Intelligence and Data Science</option>
+                <option value="B.Sc Information Technology">B.Sc Information Technology</option>
+                <option value="B.Sc Artificial Intelligence">B.Sc Artificial Intelligence</option>
+                <option value="M.Sc Computer Science">M.Sc Computer Science</option>
+                <option value="MCA">MCA</option>
+                <option value="M.E Computer Science and Engineering">M.E Computer Science and Engineering</option>
+                <option value="M.Tech Information Technology">M.Tech Information Technology</option>
+              </select>
+              <div class="reg-form-error" id="errDegree">Please select your registered degree.</div>
+            </div>
+
+            <!-- DEPARTMENT MANUAL TEXT INPUT (ENABLED ONLY AFTER DEGREE SELECTION) -->
+            <div class="reg-form-group">
+              <label for="regDepartment">Department / Specialization <span class="req">*</span></label>
+              <input type="text" id="regDepartment" name="department" class="reg-form-input" placeholder="Select your degree first" disabled required>
+              <div class="reg-form-error" id="errDepartment">Department is required.</div>
+            </div>
+
+            <div class="reg-form-group">
+              <label for="regCollege">College / Institution Name <span class="req">*</span></label>
+              <input type="text" id="regCollege" class="reg-form-input" placeholder="A.V.C. College of Engineering (Autonomous)" required>
+              <div class="reg-form-error" id="errCollege">College name is required.</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-submit-reg" style="width: 100%; padding: 13px; margin-top: 10px;">
+              REGISTER →
+            </button>
+          </form>
+
+          <p class="reg-footer-note">
+            🔒 Offline First: System state and candidate history are archived locally on this computer.
           </p>
         </div>
 
-        <!-- Multiple Choice Debugging Answers -->
-        <div class="options-container" id="optionsContainer">
-          <div class="options-label">
-            <span>SELECT THE INTENDED ERROR DIAGNOSIS &amp; CORRECTION:</span>
-            <span class="options-hint">(Click any option card to select)</span>
-          </div>
+      </div>
+    </section>
 
-          <div class="options-grid" id="optionsList" role="radiogroup" aria-label="Debugging Answer Options">
-            <!-- Dynamically populated 4 options -->
+    <!-- VIEW 2: RULES & GUIDELINE LOCK (15 SECONDS) -->
+    <section id="viewRules" class="view-screen">
+      <div class="rules-wrapper">
+        <div class="rules-header">
+          <div style="display: flex; justify-content: center; margin-bottom: 12px;">
+            <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE Logo" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent-color);">
           </div>
+          <h2>TOURNAMENT GUIDELINES</h2>
+          <p id="guidelineHeaderNotice">Read the official competition rules below. The agreement checkbox will unlock after 15 seconds.</p>
         </div>
 
-        <!-- Verification Feedback & Detailed Explanation Banner -->
-        <div class="verification-card" id="verificationCard" style="display: none;">
-          <div class="feedback-header" id="feedbackHeader">
-            <span class="feedback-icon" id="feedbackIcon">✓</span>
-            <span class="feedback-title" id="feedbackTitle">CORRECT ANSWER!</span>
-          </div>
-          <div class="explanation-body" id="explanationBody">
-            <strong class="exp-heading">Comprehensive Engineering Diagnosis:</strong>
-            <p class="exp-text" id="explanationText"><!-- Injected via JS --></p>
-          </div>
-        </div>
-
-        <!-- Bottom Action Bar (Verify, Previous, Next) -->
-        <div class="action-bar">
-          <div class="action-left">
-            <button type="button" class="btn btn-secondary" id="btnPrevQuestion" disabled>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-              <span>Previous</span>
-            </button>
-            <button type="button" class="btn btn-secondary" id="btnNextQuestion">
-              <span>Next Question</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
-          </div>
-
-          <div class="action-right">
-            <button type="button" class="btn btn-primary btn-verify" id="btnVerifyAnswer">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>VERIFY ANSWER</span>
-            </button>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- =====================================================================
-           RIGHT SIDEBAR: TIMER, PROGRESS, NAVIGATOR, SUBMIT
-           ===================================================================== -->
-      <aside class="sidebar-panel" aria-label="Test Status and Navigation">
-        
-        <!-- Sidebar Widget: Live Timer -->
-        <div class="sidebar-widget timer-widget" id="sidebarTimerWidget">
-          <div class="widget-header">
-            <span class="widget-title">EXAMINATION TIMER</span>
-            <span class="timer-status-dot" id="timerStatusDot"></span>
-          </div>
-          <div class="timer-countdown" id="sidebarTimerDisplay">60:00</div>
-          <div class="timer-progress-track">
-            <div class="timer-progress-fill" id="timerProgressFill" style="width: 100%;"></div>
-          </div>
-          <div class="timer-subtext" id="timerSubtext">Test duration: 60:00 minutes</div>
-        </div>
-
-        <!-- Sidebar Widget: Overall Progress & Score -->
-        <div class="sidebar-widget score-widget">
-          <div class="widget-header">
-            <span class="widget-title">SCORE &amp; PROGRESS</span>
-            <span class="widget-meta" id="lblProgressPercentage">0%</span>
-          </div>
-          
-          <div class="progress-bar-track">
-            <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
-          </div>
-
-          <div class="stats-mini-grid">
-            <div class="stat-mini-box">
-              <span class="stat-mini-num" id="lblCurrentScore">0</span>
-              <span class="stat-mini-lbl">SCORE</span>
+        <div class="rules-accordion">
+          <!-- CARD 1 -->
+          <div class="acc-card open">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">1</span> SEMI-FINAL STRUCTURE</div>
+              <span class="acc-toggle-icon">▼</span>
             </div>
-            <div class="stat-mini-box">
-              <span class="stat-mini-num" id="lblAnsweredCount">0/8</span>
-              <span class="stat-mini-lbl">ANSWERED</span>
-            </div>
-            <div class="stat-mini-box">
-              <span class="stat-mini-num" id="lblAccuracy">--</span>
-              <span class="stat-mini-lbl">ACCURACY</span>
+            <div class="acc-body">
+              The Semi-Final contains <strong>EXACTLY 4 questions</strong>. Each question contains <strong>EXACTLY 5 intentional errors</strong>.<br>
+              Total: <strong>4 Questions × 5 Errors = 20 Errors</strong>.<br>
+              <em>IMPORTANT: EXACTLY 4 QUESTIONS &bull; 5 ERRORS PER QUESTION &bull; 20 TOTAL ERRORS &bull; NO QUESTION 5</em>.
             </div>
           </div>
-        </div>
 
-        <!-- Sidebar Widget: Question Navigator Grid -->
-        <div class="sidebar-widget nav-grid-widget">
-          <div class="widget-header">
-            <span class="widget-title">QUESTION NAVIGATOR</span>
-            <span class="nav-legend-hint">Click to jump</span>
+          <!-- CARD 2 -->
+          <div class="acc-card">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">2</span> PROGRAMMING LANGUAGE</div>
+              <span class="acc-toggle-icon">▼</span>
+            </div>
+            <div class="acc-body">
+              The debugging questions use <strong>Python 3</strong>. Only standard Python 3 concepts are required:
+              Variables, Lists, Nested Lists / Matrices, Loops, Conditional Statements, Accumulators, Functions, and basic operators.
+              No external packages are required. <strong>NumPy and Pandas are NOT required</strong>.
+            </div>
           </div>
 
-          <div class="q-nav-grid" id="qNavGrid">
-            <!-- Dynamically populated 1 to 8 pills -->
+          <!-- CARD 3 -->
+          <div class="acc-card">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">3</span> DEBUGGING PROCESS</div>
+              <span class="acc-toggle-icon">▼</span>
+            </div>
+            <div class="acc-body">
+              1. Click <strong>[ COPY CODE ]</strong> on the left.<br>
+              2. Paste the code into your local Python IDE.<br>
+              3. Debug the program and fix the intentional errors.<br>
+              4. Run the corrected program locally.<br>
+              5. Copy your corrected code.<br>
+              6. Paste it into the right panel.<br>
+              7. Click <strong>[ VERIFY CODE ]</strong>.
+            </div>
           </div>
 
-          <!-- Navigator Status Legend -->
-          <div class="nav-legend">
-            <div class="legend-item">
-              <span class="legend-dot dot-current"></span>
-              <span>Current</span>
+          <!-- CARD 4 -->
+          <div class="acc-card">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">4</span> VERIFICATION</div>
+              <span class="acc-toggle-icon">▼</span>
             </div>
-            <div class="legend-item">
-              <span class="legend-dot dot-correct"></span>
-              <span>Correct</span>
+            <div class="acc-body">
+              Correct code: <strong>GREEN / VERIFIED</strong>.<br>
+              Incorrect code: <strong>RED / UNVERIFIED</strong> (allows editing and retry).<br>
+              Successful verification unlocks <strong>[ NEXT QUESTION ]</strong>.
             </div>
-            <div class="legend-item">
-              <span class="legend-dot dot-incorrect"></span>
-              <span>Incorrect</span>
+          </div>
+
+          <!-- CARD 5 -->
+          <div class="acc-card">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">5</span> TEST COMPLETION</div>
+              <span class="acc-toggle-icon">▼</span>
             </div>
-            <div class="legend-item">
-              <span class="legend-dot dot-unanswered"></span>
-              <span>Unanswered</span>
+            <div class="acc-body">
+              There are exactly 4 questions.<br>
+              <strong>Before 45 minutes:</strong> You can finish ONLY after solving all 4 questions.<br>
+              <strong>After 45 minutes:</strong> <strong>[ FORCE QUIT ]</strong> becomes available.<br>
+              <strong>At 60 minutes:</strong> The test automatically ends.
+            </div>
+          </div>
+
+          <!-- CARD 6 -->
+          <div class="acc-card">
+            <div class="acc-header" onclick="toggleAccordion(this)">
+              <div class="acc-title"><span class="acc-num">6</span> FINAL RULE</div>
+              <span class="acc-toggle-icon">▼</span>
+            </div>
+            <div class="acc-body">
+              The participant must not be allowed to finish normally before solving all four questions.
             </div>
           </div>
         </div>
 
-        <!-- Sidebar Widget: Submit Action -->
-        <div class="sidebar-widget submit-widget">
-          <button type="button" class="btn btn-success btn-submit-test" id="btnOpenSubmitModal">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-            <span>FINISH &amp; SUBMIT TEST</span>
+        <div class="rules-agreement-box">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span id="guidelineTimerBadge" class="guideline-timer-badge">Lock: 15s remaining</span>
+            <label class="agreement-check-wrapper">
+              <input type="checkbox" id="chkGuidelines" disabled>
+              <span>I've completely read the guidelines and agree to tournament rules</span>
+            </label>
+          </div>
+          <button id="btnStartDebug" class="btn btn-primary" disabled style="min-width: 220px;">
+            START SEMI-FINAL →
           </button>
-          <div class="submit-note">Verify all answers before final submission</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: COUNTDOWN -->
+    <section id="viewCountdown" class="view-screen">
+      <div class="countdown-wrapper">
+        <div id="countdownNumber" class="countdown-number">3</div>
+        <div class="countdown-subtitle">INITIALIZING DEBUG ENVIRONMENT...</div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: STREAMLINED TWO-COLUMN WORKSPACE -->
+    <section id="viewWorkspace" class="view-screen">
+      <div class="workspace-layout">
+
+        <!-- Stage & Status Bar -->
+        <div class="stage-status-bar">
+          <div class="stage-status-left">
+            <span id="wsStageBadge" class="stage-title-tag">SEMI-FINAL EXAMINATION</span>
+            <span id="wsQuestionNum" class="stage-meta-tag">QUESTION 1 / 4</span>
+          </div>
+          <div class="stage-meta-info">
+            <span id="wsCandidateName">Candidate: --</span>
+            <span id="wsEarlyExitStatus" style="font-weight: 700; color: var(--secondary-color);">Early exit unlocks at 45:00</span>
+          </div>
         </div>
 
-        <!-- Symposium Poster Branding Card -->
-        <div class="sidebar-widget poster-widget">
-          <div class="poster-frame">
-            <img src="assets/technothirst_reference.png" alt="Technothirst'26 Symposium Visual" class="symp-poster-img" onerror="this.style.display='none'">
+        <!-- TWO-COLUMN WORKSPACE -->
+        <div class="workspace-columns">
+          
+          <!-- LEFT COLUMN: QUESTION + TARGET OUTPUT + BUGGY CODE VIEWER -->
+          <div class="left-code-column">
+            
+            <div class="left-question-box">
+              <div id="specTitle" class="left-question-title">Problem Title</div>
+              <p id="specShortPrompt" class="left-question-desc">Maximum two lines of concise problem statement explaining what the code is intended to compute.</p>
+              
+              <!-- Target Output Display for Output-Based Examination -->
+              <div class="expected-output-box">
+                <div class="expected-output-header">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                  Target Program Output:
+                </div>
+                <div id="specExpectedOutput" class="expected-output-body">Output will appear here</div>
+              </div>
+            </div>
+
+            <div class="code-box-wrapper">
+              <div class="code-box-header">
+                <div class="code-box-header-title">
+                  <span class="code-dot"></span>
+                  Buggy Python Code (5 Intentional Errors)
+                </div>
+                <button id="btnCopyCode" class="btn-copy">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  COPY CODE
+                </button>
+              </div>
+
+              <div id="codeViewerBody" class="code-viewer-body">
+                <!-- Injected with line numbers -->
+              </div>
+            </div>
+
           </div>
-          <div class="poster-caption">
-            <strong>TECHNOTHIRST’26</strong> &bull; MCA AVCCE
+
+          <!-- RIGHT COLUMN: CODE PASTE AREA + VERIFICATION + NEXT -->
+          <div class="right-editor-column">
+            
+            <div class="editor-wrapper">
+              <div class="editor-header">
+                <div class="editor-title">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  Corrected Code Paste Area
+                </div>
+                <div class="editor-meta" id="editorLineCount">Lines: 0 | Characters: 0</div>
+              </div>
+
+              <textarea 
+                id="txtCorrectedCode" 
+                class="editor-textarea" 
+                placeholder="Paste your corrected Python code here..."
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+              ></textarea>
+
+              <div class="editor-actions-bar">
+                <!-- Action Buttons Row -->
+                <div class="editor-buttons-row">
+                  <button id="btnVerifyCode" class="btn btn-primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    VERIFY CODE
+                  </button>
+
+                  <button id="btnNextQuestion" class="btn btn-success" disabled>
+                    NEXT QUESTION →
+                  </button>
+
+                  <button id="btnSkipQuestion" class="btn btn-secondary" title="Skip this question to solve it later">
+                    ↷ SKIP QUESTION
+                  </button>
+
+                  <button id="btnFinishTest" class="btn btn-gold" style="display: none;" disabled>
+                    FINISH TEST ✓
+                  </button>
+                </div>
+
+                <!-- Next Line Verification Feedback: Green if completed, Red if not verified -->
+                <div id="verificationStatusBanner" class="verification-status-banner">
+                  <!-- Injected via JS -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- WORKSPACE FOOTER -->
+        <div class="workspace-footer-bar">
+          <div style="font-size: 13px; color: var(--text-secondary);">
+            💡 <strong>External IDE Workflow:</strong> Run code in your local Python 3 interpreter, debug the 5 errors, and paste the fixed script back.
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <!-- FORCE QUIT BUTTON (DISABLED BEFORE 45:00, ENABLED AT 45:00) -->
+            <button id="btnForceQuit" class="btn btn-danger" disabled title="Force quit unlocks after 45 minutes">
+              FORCE QUIT
+            </button>
           </div>
         </div>
 
-      </aside>
+      </div>
+    </section>
 
-    </div>
+    <!-- VIEW 5: RESULTS & AUDIT CERTIFICATE -->
+    <section id="viewResults" class="view-screen">
+      <div class="result-wrapper">
+        <div class="result-certificate-header">
+          <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE MCA Logo" class="result-logo-seal">
+          <h2>A.V.C. COLLEGE OF ENGINEERING (AUTONOMOUS)</h2>
+          <div class="cert-dept">DEPARTMENT OF COMPUTER APPLICATIONS (MCA)</div>
+          <div class="cert-sub">Technothirst’26 Python Debugging Championship — Official Audit Certificate</div>
+        </div>
+
+        <!-- Candidate Credentials -->
+        <div class="result-candidate-card">
+          <div class="cand-field">
+            <label>Candidate Name</label>
+            <span id="resCandName">--</span>
+          </div>
+          <div class="cand-field">
+            <label>Register / Roll Number</label>
+            <span id="resCandRoll">--</span>
+          </div>
+          <div class="cand-field">
+            <label>Degree</label>
+            <span id="resCandDegree">--</span>
+          </div>
+          <div class="cand-field">
+            <label>Department</label>
+            <span id="resCandDept">--</span>
+          </div>
+          <div class="cand-field">
+            <label>Institution</label>
+            <span id="resCandCollege">--</span>
+          </div>
+        </div>
+
+        <!-- Scorecards Grid -->
+        <div class="result-scorecards-grid" style="grid-template-columns: 1fr;">
+          <div class="scorecard highlight">
+            <div class="scorecard-header">
+              <span>Semi-Final Performance</span>
+              <span id="resSemiBadge" class="score-badge success">Completed</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Questions Solved</span>
+              <span class="score-metric-value" id="resSemiQuestions">0 / 4</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Errors Solved</span>
+              <span class="score-metric-value" id="resSemiErrors">0 / 20</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Total Time Taken</span>
+              <span class="score-metric-value" id="resSemiTime">00 min 00 sec</span>
+            </div>
+            <div class="score-metric-row">
+              <span class="score-metric-label">Completion Status</span>
+              <span class="score-metric-value" id="resSemiStatus">Completed</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="font-family: var(--heading-font); font-size: 16px; margin-bottom: 12px; color: var(--primary-color);">
+          Question-by-Question Audit Breakdown (Exactly 4 Questions)
+        </h3>
+        <table class="result-timing-table">
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Status</th>
+              <th>Time Consumed</th>
+              <th>Errors Solved</th>
+            </tr>
+          </thead>
+          <tbody id="resTimingTableBody">
+            <!-- Injected via JS: strictly Q1, Q2, Q3, Q4 -->
+          </tbody>
+        </table>
+
+        <!-- Result Export & Multi-Participant Action Buttons -->
+        <div class="result-actions-group">
+          <!-- REGISTER ANOTHER PARTICIPANT BUTTON -->
+          <button id="btnAddAnotherParticipant" class="btn btn-primary" style="background: linear-gradient(135deg, #075985, #06B6D4);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            + REGISTER ANOTHER PARTICIPANT
+          </button>
+
+          <button id="btnDownloadTxt" class="btn btn-secondary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            DOWNLOAD TXT AUDIT
+          </button>
+
+          <button id="btnPrintPdf" class="btn btn-secondary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            PRINT / SAVE AS PDF
+          </button>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <!-- =========================================================================
-       4. SUBMISSION CONFIRMATION MODAL
-       ========================================================================= -->
-  <div class="modal-overlay" id="modalSubmitConfirm" role="dialog" aria-modal="true" aria-labelledby="modalConfirmTitle">
-    <div class="modal-dialog">
+  <!-- DEEP NAVY FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-left">
+        <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE Logo" class="footer-logo">
+        <div class="footer-credits">
+          <strong>A.V.C. COLLEGE OF ENGINEERING (AUTONOMOUS)</strong> — Mannampandal, Mayiladuthurai<br>
+          Department of Computer Applications (MCA)
+        </div>
+      </div>
+      <div>
+        <span class="footer-tag">Technothirst’26 &bull; Official Tournament Portal</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       MODALS: ADMIN LOGIN, FORCE QUIT CONFIRMATION, ADMIN DASHBOARD, ADD PARTICIPANT AUTH
+       ========================================================================== -->
+
+  <!-- ADMIN VERIFICATION MODAL FOR ADDING ANOTHER PARTICIPANT -->
+  <div id="modalAddParticipantAuth" class="modal-backdrop">
+    <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-icon-wrap warning-glow">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
-        </div>
-        <h2 class="modal-title" id="modalConfirmTitle">Confirm Final Test Submission</h2>
-        <button type="button" class="modal-close" id="btnCloseConfirmModal" aria-label="Close modal">&times;</button>
+        <h3>Admin Verification</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalAddParticipantAuth')">&times;</button>
       </div>
-
       <div class="modal-body">
-        <p class="modal-lead">Are you sure you want to finalize and submit your test?</p>
-        <p class="modal-sub">Once submitted, all answers are locked and your official scorecard will be calculated.</p>
-
-        <div class="modal-summary-card">
-          <div class="summary-stat-row">
-            <span>Total Questions:</span>
-            <strong id="modalSummaryTotal">8</strong>
-          </div>
-          <div class="summary-stat-row">
-            <span>Attempted / Answered:</span>
-            <strong id="modalSummaryAttempted" class="text-emerald">0</strong>
-          </div>
-          <div class="summary-stat-row">
-            <span>Unanswered:</span>
-            <strong id="modalSummaryUnanswered" class="text-amber">8</strong>
-          </div>
-          <div class="summary-stat-row">
-            <span>Current Verified Score:</span>
-            <strong id="modalSummaryScore" class="text-cyan">0 / 80</strong>
-          </div>
+        <p style="margin-bottom: 6px; font-weight: 700; color: var(--text-heading);">
+          A new participant is being added.
+        </p>
+        <p style="margin-bottom: 14px; color: var(--text-secondary); font-size: 13.5px;">
+          Enter coordinator authorization password to archive the completed test and return to the Home page for a fresh participant.
+        </p>
+        <div class="reg-form-group">
+          <label for="txtAddParticipantPassword">Admin Password</label>
+          <input type="password" id="txtAddParticipantPassword" class="reg-form-input" placeholder="••••••••" autocomplete="off">
+          <div id="errAddParticipantPassword" class="reg-form-error">Incorrect admin password.</div>
         </div>
       </div>
-
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="btnCancelSubmit">Return to Test</button>
-        <button type="button" class="btn btn-success" id="btnConfirmFinalSubmit">Yes, Finalize &amp; Submit</button>
+        <button id="btnCancelAddParticipant" class="btn btn-secondary" type="button">CANCEL</button>
+        <button id="btnConfirmAddParticipant" class="btn btn-primary" type="button">VERIFY & PROCEED →</button>
       </div>
     </div>
   </div>
 
-  <!-- =========================================================================
-       5. RESET / RESTART CONFIRMATION MODAL
-       ========================================================================= -->
-  <div class="modal-overlay" id="modalResetConfirm" role="dialog" aria-modal="true" aria-labelledby="modalResetTitle">
-    <div class="modal-dialog">
+  <!-- ADMIN LOGIN MODAL -->
+  <div id="modalAdminLogin" class="modal-backdrop">
+    <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-icon-wrap danger-glow">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-            <path d="M3 3v5h5"></path>
-          </svg>
-        </div>
-        <h2 class="modal-title" id="modalResetTitle">Restart / Reset Test</h2>
-        <button type="button" class="modal-close" id="btnCloseResetModal" aria-label="Close modal">&times;</button>
+        <h3>Coordinator Authentication</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalAdminLogin')">&times;</button>
       </div>
-
       <div class="modal-body">
-        <p class="modal-lead">Reset this debugging test session?</p>
-        <p class="modal-sub">This will clear your current selections, score, and reset the countdown timer to 60:00.</p>
+        <p style="margin-bottom: 14px; color: var(--text-secondary); font-size: 13.5px;">
+          Enter coordinator authorization password to access competition controls & participant caches.
+        </p>
+        <div class="reg-form-group">
+          <label for="txtAdminPassword">Admin Password</label>
+          <input type="password" id="txtAdminPassword" class="reg-form-input" placeholder="••••••••" autocomplete="off">
+          <div id="errAdminPassword" class="reg-form-error">Invalid administrator password.</div>
+        </div>
       </div>
-
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="btnCancelReset">Cancel</button>
-        <button type="button" class="btn btn-danger" id="btnConfirmReset">Reset &amp; Start Fresh</button>
+        <button class="btn btn-secondary" onclick="closeModal('modalAdminLogin')">CANCEL</button>
+        <button id="btnAdminSubmitLogin" class="btn btn-primary">LOGIN TO DASHBOARD</button>
       </div>
     </div>
   </div>
 
-  <!-- =========================================================================
-       6. OFFICIAL RESULT SCORECARD VIEW
-       ========================================================================= -->
-  <section class="results-screen" id="resultsScreen" style="display: none;" aria-label="Test Results and Certificate">
-    <div class="results-container">
+  <!-- FORCE QUIT CONFIRMATION MODAL -->
+  <div id="modalForceQuitConfirm" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Are you sure you want to force quit the Semi-Final?</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalForceQuitConfirm')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 14px; color: var(--text-primary); line-height: 1.6; margin-bottom: 12px;">
+          You have not necessarily solved all 4 questions. Force quitting will end your current test session.
+        </p>
+        <p style="font-size: 13px; color: var(--text-secondary);">
+          Your progress up to this moment will be saved and audited. Unanswered questions will remain unsolved.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalForceQuitConfirm')">CANCEL</button>
+        <button id="btnConfirmForceQuit" class="btn btn-danger">FORCE QUIT</button>
+      </div>
+    </div>
+  </div>
 
-      <!-- Certificate Header Frame -->
-      <div class="certificate-card" id="certificateCard">
-        <div class="cert-header-block">
-          <img src="assets/mca_logo.jpg" alt="AVCCE MCA Logo" class="cert-logo" onerror="this.style.display='none'">
-          <div class="cert-titles">
-            <div class="cert-college">A.V.C. COLLEGE OF ENGINEERING (AUTONOMOUS)</div>
-            <div class="cert-dept">DEPARTMENT OF COMPUTER APPLICATIONS (MCA)</div>
-            <div class="cert-symp">TECHNOTHIRST’26 &bull; A NATIONAL LEVEL TECHNICAL SYMPOSIUM</div>
-            <div class="cert-badge-ribbon">OFFICIAL DEBUGGING CHAMPIONSHIP SCORECARD</div>
+  <!-- ADMIN DASHBOARD MODAL -->
+  <div id="modalAdminDashboard" class="modal-backdrop">
+    <div class="modal-card admin-modal-card">
+      <div class="modal-header">
+        <h3>Coordinator Control Center & Participant Archive</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalAdminDashboard')">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Live Telemetry Grid -->
+        <div class="admin-dash-grid">
+          <div class="admin-stat-card">
+            <div class="label">Current Participant</div>
+            <div class="value" id="admCandName" style="font-size: 15px;">--</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Registration / Roll No</div>
+            <div class="value" id="admCandRoll" style="font-size: 14px;">--</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Degree & Dept</div>
+            <div class="value" id="admCandDegreeDept" style="font-size: 13px;">--</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Current Question</div>
+            <div class="value" id="admQuestion">--</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Time Remaining</div>
+            <div class="value" id="admTimeLeft">--</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Questions Solved</div>
+            <div class="value" id="admQuestionsSolved">-- / 4</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Errors Solved</div>
+            <div class="value" id="admErrorsSolved">-- / 20</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="label">Pause State</div>
+            <div class="value" id="admPauseState">Active</div>
           </div>
         </div>
 
-        <div class="cert-divider"></div>
-
-        <!-- Candidate Performance Metrics Banner -->
-        <div class="cert-metrics-grid">
-          <div class="metric-card">
-            <span class="metric-label">FINAL SCORE</span>
-            <div class="metric-value text-cyan" id="resFinalScore">0 / 80</div>
-            <span class="metric-caption">Total Points</span>
-          </div>
-
-          <div class="metric-card">
-            <span class="metric-label">ACCURACY</span>
-            <div class="metric-value text-emerald" id="resPercentage">0%</div>
-            <span class="metric-caption">Correct Ratio</span>
-          </div>
-
-          <div class="metric-card">
-            <span class="metric-label">QUESTIONS SOLVED</span>
-            <div class="metric-value text-blue" id="resCorrectCount">0 / 8</div>
-            <span class="metric-caption" id="resIncorrectCount">0 Incorrect</span>
-          </div>
-
-          <div class="metric-card">
-            <span class="metric-label">TIME ELAPSED</span>
-            <div class="metric-value text-slate" id="resTimeUsed">00:00</div>
-            <span class="metric-caption" id="resTimeLeftCaption">Time Remaining</span>
-          </div>
+        <!-- Controls -->
+        <div class="admin-controls-grid">
+          <button id="admBtnPause" class="btn btn-warning">
+            ⏸ PAUSE TEST
+          </button>
+          <button id="admBtnResume" class="btn btn-success" style="display: none;">
+            ▶ RESUME TEST
+          </button>
+          <button id="admBtnForceFinish" class="btn btn-secondary">
+            ⏹ FORCE FINISH
+          </button>
+          <button id="admBtnCancel" class="btn btn-danger">
+            ✖ CANCEL TEST
+          </button>
+          <button id="admBtnNewParticipant" class="btn btn-primary">
+            + NEW PARTICIPANT
+          </button>
         </div>
 
-        <!-- Performance Summary Badge -->
-        <div class="perf-badge-wrap">
-          <span class="perf-honor-badge" id="resHonorBadge">COMPETITION PARTICIPANT</span>
-          <p class="perf-honor-desc" id="resHonorDesc">Demonstrated competitive proficiency in Python software debugging.</p>
-        </div>
+        <!-- PARTICIPANTS CACHE ARCHIVE SECTION -->
+        <div style="margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h4 style="font-family: var(--heading-font); color: var(--primary-color); font-size: 15px;">
+              📁 Saved Participant Records (Cache Storage)
+            </h4>
+            <div style="display: flex; gap: 8px;">
+              <button id="admBtnExportAllCsv" class="btn btn-secondary" style="padding: 5px 12px; font-size: 12px;">
+                Export CSV
+              </button>
+              <button id="admBtnClearRoster" class="btn btn-danger" style="padding: 5px 12px; font-size: 12px;">
+                Clear Cache
+              </button>
+            </div>
+          </div>
 
-        <!-- Question-by-Question Audit Table -->
-        <div class="audit-section">
-          <h3 class="audit-heading">Question-by-Question Technical Audit</h3>
-          <div class="table-responsive">
-            <table class="audit-table">
+          <div style="max-height: 220px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+            <table class="roster-table">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Topic &amp; Problem Title</th>
-                  <th>Difficulty</th>
-                  <th>Your Selected Diagnosis</th>
+                  <th>Roll No</th>
+                  <th>Name</th>
+                  <th>Degree</th>
+                  <th>Department</th>
+                  <th>Questions</th>
+                  <th>Errors</th>
+                  <th>Time Taken</th>
                   <th>Status</th>
-                  <th>Points</th>
                 </tr>
               </thead>
-              <tbody id="auditTableBody">
-                <!-- Dynamically populated rows -->
+              <tbody id="admRosterTableBody">
+                <!-- Injected via JS -->
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- Certificate Footer -->
-        <div class="cert-footer-signatures">
-          <div class="sig-block">
-            <div class="sig-line"></div>
-            <span class="sig-title">Staff Coordinator</span>
-            <span class="sig-dept">Dept. of Computer Applications</span>
-          </div>
-          <div class="sig-seal">
-            <div class="seal-circle">
-              <span>AVCCE</span>
-              <span>MCA</span>
-              <span>2026</span>
-            </div>
-          </div>
-          <div class="sig-block">
-            <div class="sig-line"></div>
-            <span class="sig-title">Head of Department</span>
-            <span class="sig-dept">A.V.C. College of Engineering</span>
-          </div>
-        </div>
-
       </div>
-
-      <!-- Action Buttons for Result Page -->
-      <div class="results-actions-bar">
-        <button type="button" class="btn btn-secondary" id="btnPrintCertificate">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="6 9 6 2 18 2 18 9"></polyline>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-            <rect x="6" y="14" width="12" height="8"></rect>
-          </svg>
-          <span>Print / Save PDF Scorecard</span>
-        </button>
-
-        <button type="button" class="btn btn-primary" id="btnRestartFromResults">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-            <path d="M3 3v5h5"></path>
-          </svg>
-          <span>Start New Test</span>
-        </button>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalAdminDashboard')">Close Dashboard</button>
       </div>
-
     </div>
-  </section>
+  </div>
 
-  <!-- =========================================================================
-       7. GLOBAL TOAST NOTIFICATION CONTAINER
-       ========================================================================= -->
-  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+  <!-- FULLSCREEN PAUSE SCREEN OVERLAY WITH COORDINATOR RESUME CONTROLS -->
+  <div id="pauseOverlay" class="pause-screen-overlay">
+    <div class="pause-icon">⏸</div>
+    <h2>TEST PAUSED</h2>
+    <p>The coordinator has temporarily paused the competition environment. Please wait for the session to be resumed.</p>
+    
+    <!-- COORDINATOR RESUME CONTROLS (NO PASSWORD REQUIRED) -->
+    <div class="pause-admin-box">
+      <button id="btnOverlayResume" class="btn btn-success btn-resume-overlay">
+        ▶ RESUME TEST
+      </button>
+      <button id="btnOverlayAdminPanel" class="btn btn-secondary btn-admin-overlay">
+        ⚙ COORDINATOR DASHBOARD
+      </button>
+    </div>
+  </div>
 
-  <!-- PURE VANILLA JAVASCRIPT CONTROLLER -->
+  <!-- CONFETTI CANVAS -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- PURE VANILLA JAVASCRIPT IMPLEMENTATION -->
   <script src="script.js"></script>
 </body>
 </html>
