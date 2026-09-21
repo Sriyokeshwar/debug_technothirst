@@ -17,13 +17,20 @@
       </div>
       <div class="brand-info">
         <h1>TECHNOTHIRST’26</h1>
-        <span>A National Level Student’s Technical Symposium &bull; AVCCE MCA</span>
+        <span>A.V.C. COLLEGE OF ENGINEERING &bull; MCA</span>
       </div>
       <div id="navStageBadge" class="nav-stage-badge">
         <span class="pulse-dot"></span>
         <span id="navStageText">SEMI-FINAL</span>
       </div>
     </div>
+
+    <!-- Header Navigation Links for Page 1 -->
+    <nav class="nav-links-bar" id="navLinksBar">
+      <button id="navLinkHome" class="nav-link-btn active" type="button">Home</button>
+      <button id="navLinkEvent" class="nav-link-btn" type="button">Event</button>
+      <button id="navLinkCampus" class="nav-link-btn" type="button">Campus</button>
+    </nav>
 
     <!-- Question Indicator (Q1 - Q4) -->
     <div id="navCenterProgress" class="nav-center-progress">
@@ -48,92 +55,125 @@
   <!-- MAIN APP VIEWS -->
   <main class="app-main">
 
-    <!-- VIEW 1: REGISTRATION (INNOVATIVE CYBER COMMAND TERMINAL) -->
-    <section id="viewRegistration" class="view-screen active">
-      <div class="reg-wrapper cyber-panel">
-        <!-- Cyber Corner Notch Accents -->
-        <span class="cyber-corner top-left"></span>
-        <span class="cyber-corner top-right"></span>
-        <span class="cyber-corner bottom-left"></span>
-        <span class="cyber-corner bottom-right"></span>
+    <!-- PAGE 1: HOME PAGE / EVENT LANDING -->
+    <section id="viewHome" class="view-screen active">
+      <div class="home-wrapper">
 
-        <div class="reg-header">
-          <div class="reg-logo-container">
-            <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE MCA Logo" class="reg-hero-logo">
-          </div>
-          
-          <div class="reg-institution-badge">
-            <span class="inst-name">A.V.C. COLLEGE OF ENGINEERING</span>
-            <span class="inst-tag">(AUTONOMOUS) &bull; ESTD: 1996</span>
-          </div>
-          <div class="reg-accredit-sub">
-            Approved by AICTE, New Delhi &bull; Affiliated to Anna University, Chennai &bull; NAAC 'A' Grade & NBA Accredited
-          </div>
-          <div class="reg-dept-highlight">
-            Department of Computer Applications (MCA)
+        <!-- Hero Section -->
+        <div class="home-hero-card">
+          <div class="hero-dept-badge">
+            <span class="pulse-dot"></span>
+            <span>Department of Computer Applications Presents</span>
           </div>
 
-          <h2 class="reg-brand-title">TECHNOTHIRST’26</h2>
-          <div class="reg-symposium-subtitle">(A National Level Student’s Technical Symposium)</div>
-          
-          <!-- Telemetry Live Bar -->
-          <div class="reg-telemetry-strip">
-            <div class="telemetry-chip live">
-              <span class="pulse-dot"></span>
-              <span>SYSTEM ONLINE</span>
-            </div>
-            <div class="telemetry-chip">
-              <span class="t-label">TERMINAL:</span>
-              <span class="t-val">AVCCE-MCA-DEBUG-01</span>
-            </div>
-            <div class="telemetry-chip">
-              <span class="t-label">DATE:</span>
-              <span class="t-val">23.09.2026</span>
-            </div>
-            <div class="telemetry-chip">
-              <span class="t-label">SAVED PARTICIPANTS:</span>
-              <span class="t-val" id="regCachedCount">0</span>
+          <div class="hero-college-meta">
+            <span class="college-title">A.V.C. COLLEGE OF ENGINEERING</span>
+            <span class="college-sub">(AUTONOMOUS) &bull; ESTD: 1996 &bull; NAAC 'A' Grade & NBA Accredited</span>
+          </div>
+
+          <h1 class="hero-brand-title">TECHNOTHIRST’26</h1>
+          <div class="hero-symposium-sub">A National Level Student’s Technical Symposium</div>
+          <div class="hero-tagline">CODE &bull; LEARN &bull; COMPETE &bull; GROW</div>
+
+          <div class="hero-condition-pill">
+            <span class="condition-badge">SEMI-FINAL ROUND</span>
+            <span class="condition-name">PYTHON DEBUGGING CHAMPIONSHIP</span>
+            <span class="condition-date">📅 23.09.2026</span>
+          </div>
+        </div>
+
+        <!-- College Entrance Photograph Section -->
+        <div id="campusSection" class="home-campus-card">
+          <div class="campus-image-frame">
+            <img src="assets/avc_entrance.jpg" onerror="this.onerror=null; this.src='assets/logo.jpg';" alt="A.V.C. College of Engineering Entrance" class="campus-entrance-img">
+            <div class="campus-caption-overlay">
+              <span class="caption-pin">🏛️</span>
+              <span>A.V.C. COLLEGE OF ENGINEERING &bull; MANNAMPANDAL, MAYILADUTHURAI</span>
             </div>
           </div>
         </div>
 
-        <!-- Symposium Event Highlights (Extracted directly from official poster) -->
-        <div class="symposium-highlights-grid">
-          <div class="symp-feature-card">
-            <div class="symp-feat-icon">🏆</div>
-            <div class="symp-feat-content">
-              <span class="symp-feat-title">CASH PRIZES</span>
-              <span class="symp-feat-desc">1st: ₹500 &bull; 2nd: ₹300 &bull; 3rd: ₹200</span>
+        <!-- Event Information Cards Grid -->
+        <div id="eventDetails" class="home-info-grid">
+          <div class="info-card">
+            <div class="info-card-icon">💻</div>
+            <div class="info-card-content">
+              <h3>PYTHON CODE DEBUGGING</h3>
+              <p>4 Intentional-Bug Questions &bull; 20 Total Errors to Fix &bull; Standard Python 3 Logic</p>
             </div>
           </div>
-          <div class="symp-feature-card">
-            <div class="symp-feat-icon">💻</div>
-            <div class="symp-feat-content">
-              <span class="symp-feat-title">CODE DEBUGGING</span>
-              <span class="symp-feat-desc">4 Python Questions &bull; 20 Errors Total</span>
+
+          <div class="info-card">
+            <div class="info-card-icon">🏆</div>
+            <div class="info-card-content">
+              <h3>CASH PRIZES</h3>
+              <p>1st Place: <strong>₹500</strong> &bull; 2nd Place: <strong>₹300</strong> &bull; 3rd Place: <strong>₹200</strong></p>
             </div>
           </div>
-          <div class="symp-feature-card">
-            <div class="symp-feat-icon">⏱️</div>
-            <div class="symp-feat-content">
-              <span class="symp-feat-title">TIME LIMIT</span>
-              <span class="symp-feat-desc">60 Mins &bull; Early Exit Gate at 45:00</span>
+
+          <div class="info-card">
+            <div class="info-card-icon">⏱️</div>
+            <div class="info-card-content">
+              <h3>EXAM TIME LIMIT</h3>
+              <p>60 Minutes Total Duration &bull; Early Exit Gate Unlocks at Exactly 45:00</p>
             </div>
           </div>
-          <div class="symp-feature-card">
-            <div class="symp-feat-icon">📜</div>
-            <div class="symp-feat-content">
-              <span class="symp-feat-title">OFFICIAL PERKS</span>
-              <span class="symp-feat-desc">Certificates, Lunch & Refreshments</span>
+
+          <div class="info-card">
+            <div class="info-card-icon">📜</div>
+            <div class="info-card-content">
+              <h3>OFFICIAL PERKS</h3>
+              <p>Institutional Certificate of Merit, Lunch & Refreshments Provided to all Contestants</p>
             </div>
           </div>
         </div>
 
-        <!-- Contestant Registration Console -->
-        <div class="reg-form-console-card">
-          <div class="console-card-header">
-            <span class="console-bullet"></span>
-            <span class="console-title">CONTESTANT ONBOARDING CREDENTIALS</span>
+        <!-- FULL BLUE CTA SECTION -->
+        <div class="home-cta-banner">
+          <div class="cta-banner-content">
+            <div class="cta-banner-icon">👥</div>
+            <div class="cta-banner-text">
+              <h2>BE A PART OF TECHNOTHIRST’26</h2>
+              <p>Showcase Your Python Debugging Skills & Win Championship Honors</p>
+            </div>
+          </div>
+          <button id="btnHomeRegisterNow" class="btn btn-cta-register" type="button">
+            REGISTER NOW →
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PAGE 2: REGISTRATION PAGE (DEDICATED CENTERED CONTESTANT FORM) -->
+    <section id="viewRegistration" class="view-screen">
+      <div class="reg-page-container">
+
+        <!-- Back to Home Control -->
+        <div class="reg-top-nav-bar">
+          <button id="btnBackToHome" class="btn-back-home" type="button">
+            ← Back to Home
+          </button>
+          <span class="reg-page-step-tag">STEP 1 OF 3 &bull; CONTESTANT VERIFICATION</span>
+        </div>
+
+        <!-- Centered Contestant Form Card -->
+        <div class="reg-wrapper cyber-panel">
+          <span class="cyber-corner top-left"></span>
+          <span class="cyber-corner top-right"></span>
+          <span class="cyber-corner bottom-left"></span>
+          <span class="cyber-corner bottom-right"></span>
+
+          <div class="reg-form-header">
+            <div class="reg-logo-container">
+              <img src="assets/logo.jpg" onerror="this.onerror=null; this.src='logo.jpg';" alt="AVCCE MCA Logo" class="reg-hero-logo">
+            </div>
+            <h2>CONTESTANT ONBOARDING</h2>
+            <p>Register for the Technothirst’26 Python Debugging Semi-Final</p>
+            <div class="reg-telemetry-strip" style="margin-top: 12px;">
+              <span class="telemetry-chip live"><span class="pulse-dot"></span> SYSTEM ONLINE</span>
+              <span class="telemetry-chip"><span class="t-label">ENROLLED:</span> <span class="t-val" id="regCachedCount">0</span></span>
+            </div>
           </div>
 
           <form id="formRegistration" novalidate>
@@ -178,19 +218,20 @@
 
             <div class="reg-form-group">
               <label for="regCollege">College / Institution Name <span class="req">*</span></label>
-              <input type="text" id="regCollege" class="reg-form-input" placeholder="A.V.C. College of Engineering (Autonomous)"  required>
+              <input type="text" id="regCollege" class="reg-form-input" placeholder="A.V.C. College of Engineering (Autonomous)" required>
               <div class="reg-form-error" id="errCollege">College name is required.</div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">
-              ENTER COMPETITION →
+            <button type="submit" class="btn btn-primary btn-submit-reg" style="width: 100%; padding: 13px; margin-top: 10px;">
+              REGISTER →
             </button>
           </form>
+
+          <p class="reg-footer-note">
+            🔒 Offline First: System state and candidate history are archived locally on this computer.
+          </p>
         </div>
 
-        <p class="reg-footer-note">
-          🔒 Offline First: System state and candidate history are archived locally on this computer.
-        </p>
       </div>
     </section>
 
@@ -553,8 +594,35 @@
   </footer>
 
   <!-- ==========================================================================
-       MODALS: ADMIN LOGIN, FORCE QUIT CONFIRMATION, ADMIN DASHBOARD
+       MODALS: ADMIN LOGIN, FORCE QUIT CONFIRMATION, ADMIN DASHBOARD, ADD PARTICIPANT AUTH
        ========================================================================== -->
+
+  <!-- ADMIN VERIFICATION MODAL FOR ADDING ANOTHER PARTICIPANT -->
+  <div id="modalAddParticipantAuth" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Admin Verification</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalAddParticipantAuth')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 6px; font-weight: 700; color: var(--text-heading);">
+          A new participant is being added.
+        </p>
+        <p style="margin-bottom: 14px; color: var(--text-secondary); font-size: 13.5px;">
+          Enter coordinator authorization password to archive the completed test and return to the Home page for a fresh participant.
+        </p>
+        <div class="reg-form-group">
+          <label for="txtAddParticipantPassword">Admin Password</label>
+          <input type="password" id="txtAddParticipantPassword" class="reg-form-input" placeholder="••••••••" autocomplete="off">
+          <div id="errAddParticipantPassword" class="reg-form-error">Incorrect admin password.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelAddParticipant" class="btn btn-secondary" type="button">CANCEL</button>
+        <button id="btnConfirmAddParticipant" class="btn btn-primary" type="button">VERIFY & PROCEED →</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ADMIN LOGIN MODAL -->
   <div id="modalAdminLogin" class="modal-backdrop">

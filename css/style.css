@@ -227,6 +227,36 @@ body {
   100% { transform: scale(0.9); opacity: 0.7; }
 }
 
+/* Header Navigation Links for Page 1 */
+.nav-links-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-link-btn {
+  background: transparent;
+  border: none;
+  font-family: var(--body-font);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+.nav-link-btn:hover {
+  color: var(--cerulean);
+  background: var(--bg-secondary);
+}
+
+.nav-link-btn.active {
+  color: var(--dark-teal);
+  background: var(--bg-secondary);
+}
+
 /* Question Steps in Navbar */
 .nav-center-progress {
   display: none;
@@ -529,93 +559,398 @@ body {
 }
 
 /* ==========================================================================
-   VIEW 1: REGISTRATION (PREMIUM COMPETITION REGISTRATION TERMINAL)
+   PAGE 1: HOME PAGE / EVENT LANDING VIEW (#viewHome)
    ========================================================================== */
-.reg-wrapper {
-  max-width: 840px;
+.home-wrapper {
+  max-width: 1040px;
   width: 92%;
-  margin: 32px auto;
-  padding: 36px 40px;
+  margin: 32px auto 48px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.reg-header {
+.home-hero-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(14px);
+  border: var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
   text-align: center;
-  margin-bottom: 24px;
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
 }
 
-.reg-logo-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 14px;
-}
-
-.reg-hero-logo {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2.5px solid var(--cyan-primary);
-  box-shadow: 0 4px 18px rgba(6, 182, 212, 0.25);
-  background: #FFFFFF;
-}
-
-.reg-institution-badge {
-  display: flex;
+.hero-dept-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  margin-bottom: 4px;
-}
-
-.inst-name {
-  font-family: var(--heading-font);
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--text-heading);
-  letter-spacing: 0.8px;
-}
-
-.inst-tag {
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  color: var(--cyan-deep);
+  padding: 5px 14px;
+  border-radius: 9999px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--cyan-deep);
+  margin-bottom: 12px;
 }
 
-.reg-accredit-sub {
-  font-size: 11.5px;
-  color: var(--text-secondary);
-  letter-spacing: 0.3px;
-  margin-bottom: 6px;
+.hero-dept-badge .pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan-primary);
+  animation: pulse-glow 2s infinite;
 }
 
-.reg-dept-highlight {
-  font-family: var(--heading-font);
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--dark-teal);
+.hero-college-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   margin-bottom: 8px;
 }
 
-.reg-brand-title {
+.college-title {
   font-family: var(--heading-font);
-  font-size: 36px;
+  font-size: 19px;
   font-weight: 900;
-  letter-spacing: 2.5px;
-  line-height: 1.15;
-  background: linear-gradient(135deg, #D97706 0%, #F59E0B 45%, #B45309 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 4px rgba(217, 119, 6, 0.15));
-  margin: 6px 0 4px 0;
+  color: var(--text-heading);
+  letter-spacing: 1px;
 }
 
-.reg-symposium-subtitle {
+.college-sub {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.hero-brand-title,
+.reg-brand-title {
   font-family: var(--heading-font);
-  font-size: 13.5px;
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  line-height: 1.15;
+  background: linear-gradient(135deg, #D97706 0%, #F59E0B 40%, #B45309 80%, #78350F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 5px rgba(217, 119, 6, 0.22));
+  margin: 10px 0 6px 0;
+}
+
+.hero-symposium-sub {
+  font-family: var(--heading-font);
+  font-size: 14.5px;
   font-weight: 700;
   color: var(--bronze-dark);
-  letter-spacing: 0.6px;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+}
+
+.hero-tagline {
+  font-family: var(--technical-font);
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--cerulean);
+  letter-spacing: 2px;
   margin-bottom: 18px;
+}
+
+.hero-condition-pill {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  padding: 8px 20px;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(6, 43, 69, 0.05);
+  margin-top: 4px;
+}
+
+.condition-badge {
+  background: var(--accent-gradient);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.8px;
+}
+
+.condition-name {
+  font-family: var(--heading-font);
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-heading);
+  letter-spacing: 0.5px;
+}
+
+.condition-date {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* College Entrance Visual Card */
+.home-campus-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(14px);
+  border: var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.campus-image-frame {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #E2E8F0;
+}
+
+.campus-entrance-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.home-campus-card:hover .campus-entrance-img {
+  transform: scale(1.02);
+}
+
+.campus-caption-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.90) 0%, rgba(15, 23, 42, 0.45) 70%, transparent 100%);
+  color: #FFFFFF;
+  padding: 24px 20px 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.caption-pin {
+  font-size: 16px;
+}
+
+/* Event Info 4-Column Grid */
+.home-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.info-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  box-shadow: 0 2px 10px rgba(6, 43, 69, 0.04);
+  transition: all 0.25s ease;
+}
+
+.info-card:hover {
+  border-color: var(--cyan-primary);
+  box-shadow: 0 6px 18px rgba(6, 182, 212, 0.16);
+  transform: translateY(-3px);
+}
+
+.info-card-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.info-card-content h3 {
+  font-family: var(--heading-font);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-heading);
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+}
+
+.info-card-content p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.info-card-content p strong {
+  color: var(--text-heading);
+  font-weight: 800;
+}
+
+/* Full Blue CTA Section */
+.home-cta-banner {
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 50%, #0C4A6E 100%);
+  border-radius: var(--radius-lg);
+  padding: 30px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-shadow: 0 10px 30px rgba(2, 132, 199, 0.28);
+  color: #FFFFFF;
+}
+
+.cta-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.cta-banner-icon {
+  font-size: 38px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.cta-banner-text h2 {
+  font-family: var(--heading-font);
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+}
+
+.cta-banner-text p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+.btn-cta-register {
+  background: #FFFFFF;
+  color: #0369A1;
+  font-family: var(--heading-font);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  padding: 14px 30px;
+  border-radius: 9999px;
+  border: 2px solid #FFFFFF;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-cta-register:hover {
+  background: #F8FAFC;
+  color: #0284C7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.24);
+}
+
+/* ==========================================================================
+   PAGE 2: REGISTRATION (DEDICATED CENTERED CONTESTANT TERMINAL)
+   ========================================================================== */
+.reg-page-container {
+  max-width: 720px;
+  width: 92%;
+  margin: 28px auto 48px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reg-top-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 2px;
+}
+
+.btn-back-home {
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  color: var(--text-heading);
+  font-family: var(--heading-font);
+  font-size: 13px;
+  font-weight: 800;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.btn-back-home:hover {
+  border-color: var(--cyan-primary);
+  color: var(--cyan-deep);
+  background: #F8FAFC;
+  transform: translateX(-2px);
+}
+
+.reg-page-step-tag {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--text-secondary);
+  letter-spacing: 0.8px;
+}
+
+.reg-wrapper {
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 34px 38px;
+  background: var(--card-bg);
+  backdrop-filter: blur(14px);
+  border: var(--card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+  position: relative;
+}
+
+.reg-form-header {
+  text-align: center;
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.reg-form-header h2 {
+  font-family: var(--heading-font);
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--text-heading);
+  letter-spacing: 1px;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.reg-form-header p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 /* Telemetry Live Bar */
@@ -625,7 +960,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin: 0 auto;
+  margin: 10px auto 0 auto;
 }
 
 .telemetry-chip {
@@ -666,85 +1001,20 @@ body {
   font-weight: 800;
 }
 
-/* Symposium Highlights Grid (Poster Elements) */
-.symposium-highlights-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin: 20px 0 24px 0;
+.reg-logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 6px;
 }
 
-.symp-feature-card {
+.reg-hero-logo {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid var(--cyan-primary);
+  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.22);
   background: #FFFFFF;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 12px 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 2px 8px rgba(6, 43, 69, 0.04);
-  transition: all 0.2s ease;
-}
-
-.symp-feature-card:hover {
-  border-color: var(--cyan-primary);
-  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.15);
-  transform: translateY(-2px);
-}
-
-.symp-feat-icon {
-  font-size: 22px;
-}
-
-.symp-feat-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.symp-feat-title {
-  font-family: var(--heading-font);
-  font-size: 11.5px;
-  font-weight: 800;
-  color: var(--text-heading);
-  letter-spacing: 0.4px;
-}
-
-.symp-feat-desc {
-  font-size: 11px;
-  color: var(--text-secondary);
-  line-height: 1.3;
-}
-
-/* Contestant Onboarding Form Card */
-.reg-form-console-card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 24px;
-}
-
-.console-card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 18px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.console-bullet {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  background: var(--cyan-primary);
-}
-
-.console-title {
-  font-family: var(--heading-font);
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text-heading);
-  letter-spacing: 0.8px;
 }
 
 .reg-form-group {
@@ -801,6 +1071,12 @@ body {
   color: var(--error-red);
   font-weight: 600;
   margin-top: 5px;
+}
+
+.btn-submit-reg {
+  font-family: var(--heading-font);
+  font-weight: 800;
+  letter-spacing: 0.8px;
 }
 
 .reg-footer-note {
@@ -1796,8 +2072,14 @@ body {
   .workspace-columns {
     grid-template-columns: 1fr;
   }
-  .symposium-highlights-grid {
+  .home-info-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .campus-image-frame {
+    height: 300px;
+  }
+  .hero-brand-title {
+    font-size: 40px;
   }
 }
 
@@ -1805,16 +2087,60 @@ body {
   .top-navbar {
     padding: 10px 16px;
   }
-  .reg-wrapper, .rules-wrapper, .result-wrapper {
-    padding: 24px 20px;
+  .nav-links-bar {
+    display: none;
   }
-  .symposium-highlights-grid {
+  .home-hero-card {
+    padding: 24px 18px;
+  }
+  .hero-brand-title {
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+  .home-campus-card {
+    padding: 10px;
+  }
+  .campus-image-frame {
+    height: 220px;
+  }
+  .home-info-grid {
     grid-template-columns: 1fr;
+  }
+  .home-cta-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 20px;
+    gap: 18px;
+  }
+  .cta-banner-content {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .btn-cta-register {
+    width: 100%;
+  }
+  .reg-page-container {
+    margin: 16px auto 32px auto;
+  }
+  .reg-wrapper, .rules-wrapper, .result-wrapper {
+    padding: 24px 18px;
   }
   .admin-dash-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .reg-brand-title {
-    font-size: 28px;
+}
+
+@media (max-width: 480px) {
+  .hero-brand-title {
+    font-size: 26px;
+    letter-spacing: 1px;
+  }
+  .hero-condition-pill {
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 14px;
+  }
+  .admin-dash-grid {
+    grid-template-columns: 1fr;
   }
 }

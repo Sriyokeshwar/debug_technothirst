@@ -400,7 +400,7 @@ function resetToNewParticipant() {
   hideVerificationStatus();
 
   updateCachedCountUI();
-  switchView('viewRegistration');
+  switchView('viewHome');
 }
 
 /* ==========================================================================
@@ -1241,12 +1241,97 @@ function showResultsView() {
   });
 }
 
-// REGISTER ANOTHER PARTICIPANT BUTTON
+// REGISTER ANOTHER PARTICIPANT BUTTON (ADMIN AUTHENTICATED)
 document.getElementById('btnAddAnotherParticipant').addEventListener('click', function() {
-  if (confirm('Archive current participant audit and register a new student for the competition?')) {
-    resetToNewParticipant();
-  }
+  const pwdInput = document.getElementById('txtAddParticipantPassword');
+  const errEl = document.getElementById('errAddParticipantPassword');
+  if (pwdInput) pwdInput.value = '';
+  if (errEl) errEl.style.display = 'none';
+  openModal('modalAddParticipantAuth');
+  if (pwdInput) setTimeout(() => pwdInput.focus(), 100);
 });
+
+// ADMIN AUTH MODAL HANDLERS FOR ADD ANOTHER PARTICIPANT
+const btnCancelAddPart = document.getElementById('btnCancelAddParticipant');
+if (btnCancelAddPart) {
+  btnCancelAddPart.addEventListener('click', function() {
+    closeModal('modalAddParticipantAuth');
+  });
+}
+
+const btnConfirmAddPart = document.getElementById('btnConfirmAddParticipant');
+if (btnConfirmAddPart) {
+  btnConfirmAddPart.addEventListener('click', async function() {
+    const pwdInput = document.getElementById('txtAddParticipantPassword');
+    const errEl = document.getElementById('errAddParticipantPassword');
+    const pwd = pwdInput ? pwdInput.value.trim() : '';
+    const hash = await sha256Hex(pwd);
+
+    if (hash === ADMIN_HASH) {
+      if (errEl) errEl.style.display = 'none';
+      closeModal('modalAddParticipantAuth');
+      resetToNewParticipant();
+      switchView('viewHome');
+    } else {
+      if (errEl) errEl.style.display = 'block';
+    }
+  });
+}
+
+const txtAddPartPwd = document.getElementById('txtAddParticipantPassword');
+if (txtAddPartPwd) {
+  txtAddPartPwd.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('btnConfirmAddParticipant')?.click();
+    }
+  });
+}
+
+// TWO-PAGE NAVIGATION: HOME (PAGE 1) <-> REGISTRATION (PAGE 2)
+const btnHomeReg = document.getElementById('btnHomeRegisterNow');
+if (btnHomeReg) {
+  btnHomeReg.addEventListener('click', function() {
+    switchView('viewRegistration');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+const btnBackHome = document.getElementById('btnBackToHome');
+if (btnBackHome) {
+  btnBackHome.addEventListener('click', function() {
+    switchView('viewHome');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+const navLinkH = document.getElementById('navLinkHome');
+if (navLinkH) {
+  navLinkH.addEventListener('click', function() {
+    switchView('viewHome');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+const navLinkE = document.getElementById('navLinkEvent');
+if (navLinkE) {
+  navLinkE.addEventListener('click', function() {
+    switchView('viewHome');
+    setTimeout(() => {
+      document.getElementById('eventDetails')?.scrollIntoView({ behavior: 'smooth' });
+    }, 60);
+  });
+}
+
+const navLinkC = document.getElementById('navLinkCampus');
+if (navLinkC) {
+  navLinkC.addEventListener('click', function() {
+    switchView('viewHome');
+    setTimeout(() => {
+      document.getElementById('campusSection')?.scrollIntoView({ behavior: 'smooth' });
+    }, 60);
+  });
+}
 
 // TXT AUDIT DOWNLOAD
 document.getElementById('btnDownloadTxt').addEventListener('click', function() {
@@ -1640,16 +1725,18 @@ window.addEventListener('DOMContentLoaded', () => {
       } else if (STATE.view === 'viewRules') {
         switchView('viewRules');
         initGuidelineTimer();
-      } else {
+      } else if (STATE.view === 'viewRegistration') {
         switchView('viewRegistration');
+      } else {
+        switchView('viewHome');
       }
       return;
     }
   }
 
-  // 3. If no active user or invalid ownership, start clean
+  // 3. If no active user or invalid ownership, start clean on Home Page
   resetInMemoryState();
-  switchView('viewRegistration');
+  switchView('viewHome');
 });
 
 // Guarantee session persistence on window close/refresh for current user
