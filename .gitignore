@@ -2,3 +2,8 @@
 .DS_Store
 Thumbs.db
 *.log
+
+# Scratch & Temporary Directories
+scratch/
+*.py
+*.pyc
